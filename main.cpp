@@ -1,6 +1,13 @@
 #include <iostream>
+#include "DynamicArray.h" 
 
 int main()
 {
-	hi
+    int message;
+    DynamicArray<int> vec(10, 100);
+    for(int n : vec)
+    {
+        std::cin >> message;
+        std::cout << n << ' ' << message << std::endl;
+    }
 }
