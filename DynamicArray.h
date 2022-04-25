@@ -271,7 +271,7 @@ void DynamicArray<Var>::PushBack(Var&& val)
 template <typename Var>
 void DynamicArray<Var>::PopBack()
 {
-    data_[--size_].~T();
+    data_[--size_].~Var();
 }
 
 template <typename Var>

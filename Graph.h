@@ -2,16 +2,15 @@
 #include "DynamicArray.h"
 
 using Vertex = int;
+using AdjList = DynamicArray<DynamicArray<Vertex>>;
 
 class Graph
 {
-	DynamicArray<DynamicArray<Vertex>> adj_list_;
+	AdjList adj_list_;
 
 public:
 
-
-	Graph(DynamicArray<DynamicArray<Vertex>> other_adj_list);
-
+	Graph(AdjList other_adj_list);
 
 	int VertexDeg(Vertex vertex) const;
 	int VertexCount() const;
@@ -27,5 +26,7 @@ public:
 
 	bool IsKVertexConnected(int k) const; 
 	bool IsWellformed() const; //representation invariant
+
+	static const Graph K_4;
 };
 

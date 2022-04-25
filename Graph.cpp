@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <iomanip>
 
-Graph::Graph(DynamicArray<DynamicArray<Vertex>> other_adj_list) : adj_list_{ other_adj_list } {}
+Graph::Graph(AdjList other_adj_list) : adj_list_{ std::move(other_adj_list) } {}
 
 int Graph::VertexDeg(Vertex vertex) const
 {
@@ -122,7 +122,7 @@ void Graph::PrintGraph() const
 
 bool Graph::IsWellformed() const //representation invariant
 {
-    //make sure graph is bidirectional, and that all veritices are from [0,VertexCount)
+    //make sure graph is bidirectional, and that all veritices are from [0,VertexCount)  {HasEdge() checks it}
     for (Vertex i = 0; i < VertexCount(); ++i) {
         for (const Vertex& j : adj_list_[i]) {
 
@@ -136,3 +136,5 @@ bool Graph::IsWellformed() const //representation invariant
 
     return true;
 }
+
+const Graph Graph::K_4{ AdjList{{1,2,3},{0,2,3},{0,1,3},{0,1,2}} };
