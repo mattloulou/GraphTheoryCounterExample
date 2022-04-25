@@ -43,8 +43,6 @@ public:
 
 
     //specialized container operators
-    Var& At(int i); //gets ref to index
-    const Var& At(int i) const;
     Var& Front(); //gets ref to front index
     const Var& Front() const;
     Var& Back(); //gets ref to back index
@@ -195,20 +193,6 @@ int DynamicArray<Var>::Size() const
 
 
 //specialized container operators
-template <typename Var>
-Var& DynamicArray<Var>::At(int i)
-{
-    if (i < 0 || i >= size_) throw std::out_of_range("index out of bound");
-    else return data_[i];
-}
-
-template <typename Var>
-const Var& DynamicArray<Var>::At(int i) const
-{
-    if (i < 0 || i >= size_) throw std::out_of_range("index out of bound");
-    else return data_[i];
-}
-
 template <typename Var>
 Var& DynamicArray<Var>::Front()
 {
