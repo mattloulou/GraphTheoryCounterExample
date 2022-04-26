@@ -9,6 +9,17 @@ Graph::Graph(AdjList other_adj_list) : adj_list_{ std::move(other_adj_list) }
     //empty
 }
 
+///conastructs a graph with "vertex_count" vertices with no edges
+Graph::Graph(int vertex_count)
+{
+    assert(vertex_count >= 0);
+
+    //add "vertex_count" many vertices 
+    for (int i = 0; i < vertex_count; ++i) {
+        adj_list_.PushBack(DynamicArray<Vertex>{});
+    }
+}
+
 ///returns the degree of the given vertex (number of edges it has)
 int Graph::VertexDeg(Vertex vertex) const
 {
@@ -124,6 +135,7 @@ bool Graph::IsKVertexConnected(int k) const
     return 1;
 }
 
+///adds room for another vertex in the adjacency list (with the label/name being the new VertexCount() - 1)
 void Graph::AddVertex(int count)
 {
     assert(count >= 1);
@@ -133,6 +145,7 @@ void Graph::AddVertex(int count)
     }
 }
 
+///removes the specified vertex, and renames the largest vertex to the deleted vertex
 void Graph::RemoveVertex(Vertex vertex)
 {
     assert(vertex < VertexCount() && vertex >= 0);
@@ -144,7 +157,7 @@ void Graph::RemoveVertex(Vertex vertex)
 
     if (vertex < VertexCount() - 1) {
         //copy the edges from the last vertex to the empty vertex
-        for (const Vertex& c : adj_list_[VertexCount() - 1]) {
+        for (const Vertex& c : adj_list_.Back()) {
             AddEdge(vertex, c);
         }
 
@@ -198,9 +211,19 @@ bool Graph::IsSimpleGraph() const //representation invariant
     return true;
 }
 
+/// The cycle must have a unique list of vertices (end != beginning)
 bool Graph::HasChord(DynamicArray<Vertex> cycle) const
 {
     assert(cycle.Size() >= 2);
+    
+    //make sure cycle is unique
+    #ifdef _DEBUG
+    std::unordered_set<Vertex> vertices;
+    for (const Vertex& v : cycle) {
+        assert(!vertices.contains(v));
+        vertices.insert(v);
+    }
+    #endif
 
     //loop through all Vertices in the cycle until we find one with a chord
     for (Vertex i = 0; i < cycle.Size() - 1; ++i) { //it is not necessary to check the final Vertex?

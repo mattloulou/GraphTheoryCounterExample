@@ -14,6 +14,7 @@ public:
 
 	Graph() = default; 
 	Graph(AdjList other_adj_list); 
+	Graph(int vertex_count);
 
 	int VertexDeg(Vertex vertex) const; 
 	int VertexCount() const; 

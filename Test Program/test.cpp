@@ -49,6 +49,170 @@ TEST(DynamicArrayCopyCtor, FilledWithCopyConstructor)
 
 /////////////////////////////   Graph Tests   /////////////////////////////
 
+TEST(IsSimpleGraph, DegreeOneSelfLoopGraphExpectsNotSimpleGraph) {
+	Graph two_vertex_graph{ AdjList{ {0}, {1} } };
+	const std::string expected_output =
+		"0:  0\n" //self-loop here
+		"1:  1\n";//self-loop here
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	two_vertex_graph.PrintGraph(3);
+	const std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_DEATH(two_vertex_graph.IsSimpleGraph(), "") << "testing self-loop condition for IsSimpleGraph()";
+}
+
+TEST(IsSimpleGraph, LargeSelfLoopGraphExpectsNotSimpleGraph) {
+	Graph large_graph{ AdjList{{1,3,4}, {0,2,3,5}, {1,4}, {0,1,4}, {0,2,3,5}, {1,4,5}} };
+	const std::string expected_output =
+		"0:  1  3  4\n"
+		"1:  0  2  3  5\n"
+		"2:  1  4\n"
+		"3:  0  1  4\n"
+		"4:  0  2  3  5\n"
+		"5:  1  4  5\n";  //self loop is here
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	large_graph.PrintGraph(3);
+	const std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_DEATH(large_graph.IsSimpleGraph(), "") << "testing self-loop condition graph for IsSimpleGraph()";
+}
+
+TEST(IsSimpleGraph, SmallGraphWithDirectionalEdgeExpectsNotSimpleGraph) {
+	Graph small_graph{ AdjList{{1}, {0,2}, {0, 1}} };
+	const std::string expected_output =
+		"0:  1\n"
+		"1:  0  2\n"
+		"2:  0  1\n";  //has an edge 2 --> 0, but not the other direction
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	small_graph.PrintGraph(3);
+	const std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_DEATH(small_graph.IsSimpleGraph(), "") <<
+		"testing bidirectional condition graph for IsSimpleGraph()."
+		"Graph has directional edge, so it should not be simple, and so should fail an assertion.";
+}
+
+TEST(IsSimpleGraph, LargeGraphWithDirectionalEdgeExpectsNotSimpleGraph) {
+	Graph large_graph{ AdjList{{1,3,4}, {0,2,3,5}, {1,4}, {0,1,4}, {0,2,3,5}, {1,4,3}} };
+	const std::string expected_output =
+		"0:  1  3  4\n"
+		"1:  0  2  3  5\n"
+		"2:  1  4\n"
+		"3:  0  1  4\n"
+		"4:  0  2  3  5\n"
+		"5:  1  4  3\n";  //has an edge 5 --> 3, but not the other direction
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	large_graph.PrintGraph(3);
+	const std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_DEATH(large_graph.IsSimpleGraph(), "") <<
+		"testing bidirectional condition graph for IsSimpleGraph()."
+		"Graph has directional edge, so it should not be simple, and so should fail an assertion.";
+}
+
+TEST(IsSimpleGraph, SmallDuplicateEdgeGraphExpectsNotSimpleGraph) {
+	Graph small_graph{ AdjList{{1,2,2}, {0,2}, {0, 1, 0}} };
+	const std::string expected_output =
+		"0:  1  2  2\n" //2 <--> 0 twice, which is a duplicate
+		"1:  0  2\n"
+		"2:  0  1  0\n";  //2 <--> 0 twice, which is a duplicate
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	small_graph.PrintGraph(3);
+	const std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_DEATH(small_graph.IsSimpleGraph(), "") <<
+		"testing no-duplicate-edges condition graph for IsSimpleGraph()."
+		"Graph has a duplicate edge, so it should not be simple, and so should fail an assertion.";
+}
+
+TEST(IsSimpleGraph, SmallDuplicateAndDirectionalEdgeFromLargestVertexGraphExpectsNotSimpleGraph) {
+	Graph small_graph{ AdjList{{1}, {0,2}, {0,1,0}} };
+	const std::string expected_output =
+		"0:  1\n"
+		"1:  0  2\n"
+		"2:  0  1  0\n";  //2 --> 0 twice, which is both a duplicate edge and a directional edge.
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	small_graph.PrintGraph(3);
+	const std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_DEATH(small_graph.IsSimpleGraph(), "") <<
+		"testing bidirectional and no-duplicate-edges condition graph for IsSimpleGraph()."
+		"Graph has directional edge which is also a duplicate, so it should not be simple, and so should fail an assertion.";
+}
+
+TEST(IsSimpleGraph, SmallDuplicateAndDirectionalEdgeFromSmallestVertexGraphExpectsNotSimpleGraph) {
+	Graph small_graph{ AdjList{{1,2,2}, {0,2}, {1}} };
+	const std::string expected_output =
+		"0:  1  2  2\n" //0 --> 2 twice, which is both a duplicate edge and a directional edge.
+		"1:  0  2\n"
+		"2:  1\n";  
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	small_graph.PrintGraph(3);
+	const std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_DEATH(small_graph.IsSimpleGraph(), "") <<
+		"testing bidirectional and no-duplicate-edges condition graph for IsSimpleGraph()."
+		"Graph has directional edge which is also a duplicate, so it should not be simple, and so should fail an assertion.";
+}
+
+TEST(IsSimpleGraph, NullGraphExpectsSimpleGraph) {
+	Graph K4{};
+	const std::string expected_output =
+		"";
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	K4.PrintGraph(3);
+	const std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_TRUE(K4.IsSimpleGraph()) <<
+		"testing all conditions for IsSimpleGraph()."
+		"Graph should pass all assertions, and thus the function call returns true";
+}
+
+TEST(IsSimpleGraph, K4GraphExpectsSimpleGraph) {
+	Graph two_vertex_graph{ Graph::K_4 };
+	const std::string expected_output =
+		"0:  1  2  3\n" 
+		"1:  0  2  3\n"
+		"2:  0  1  3\n"
+		"3:  0  1  2\n";
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	two_vertex_graph.PrintGraph(3);
+	const std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_TRUE(two_vertex_graph.IsSimpleGraph()) <<
+		"testing all conditions for IsSimpleGraph()."
+		"Graph should pass all assertions, and thus the function call returns true";
+}
+
+
+
 
 TEST(GraphDefaultCtorTest, EmptyGraph) {
 	Graph empty_graph{};
@@ -56,6 +220,60 @@ TEST(GraphDefaultCtorTest, EmptyGraph) {
 	EXPECT_TRUE(empty_graph.VertexCount() == 0) << "graph should have a vertex count of 0";
 	EXPECT_TRUE(empty_graph.EdgeCount() == 0) << "graph should have an edge count of 0";
 }
+
+
+
+
+TEST(GraphCtorForVertexCountTest, SmallDegreeOneGraph) {
+	Graph two_vertex_graph{ 2 };
+	const std::string expected_output =
+		"0:\n"
+		"1:\n";
+
+	testing::internal::CaptureStdout();
+	two_vertex_graph.PrintGraph(3);
+	const std::string real_output = testing::internal::GetCapturedStdout();
+
+	EXPECT_EQ(expected_output, real_output);
+	EXPECT_EQ(two_vertex_graph.VertexCount(), 2);
+	ASSERT_TRUE(two_vertex_graph.IsSimpleGraph());
+
+	for (int i = 0; i < two_vertex_graph.VertexCount(); ++i) {
+		ASSERT_TRUE(two_vertex_graph.VertexDeg(i) == 0);
+	}
+}
+
+TEST(GraphCtorForVertexCountTest, LargeDegreeOneGraph) {
+	Graph two_vertex_graph{ 8 };
+	const std::string expected_output =
+		"0:\n"
+		"1:\n"
+		"2:\n"
+		"3:\n"
+		"4:\n"
+		"5:\n"
+		"6:\n"
+		"7:\n";
+
+	testing::internal::CaptureStdout();
+	two_vertex_graph.PrintGraph(3);
+	const std::string real_output = testing::internal::GetCapturedStdout();
+
+	EXPECT_EQ(expected_output, real_output);
+	EXPECT_EQ(two_vertex_graph.VertexCount(), 8);
+	ASSERT_TRUE(two_vertex_graph.IsSimpleGraph());
+
+	for (int i = 0; i < two_vertex_graph.VertexCount(); ++i) {
+		ASSERT_EQ(two_vertex_graph.VertexDeg(i), 0);
+	}
+}
+
+TEST(GraphCtorForVertexCountTest, NegativeVertexCountParameter) {
+	ASSERT_DEATH(Graph{ -1 }, "");
+	//ASSERT_NO_FATAL_FAILURE(Graph{ -1 }); //this is basically the opposite to ASSERT_DEATH. This macro verifies the test works correctly.
+}
+
+
 
 
 
@@ -74,20 +292,6 @@ TEST(GraphAdjListCtorTest, DegreeOneGraph) {
 	ASSERT_TRUE(two_vertex_graph.IsSimpleGraph()) << "testing two_vertex_graph for IsSimpleGraph()";
 }
 
-TEST(GraphAdjListCtorTest, DegreeOneSelfLoopGraph) {
-	Graph two_vertex_graph{ AdjList{ {0}, {1} } };
-	const std::string expected_output =
-		"0:  0\n"
-		"1:  1\n";
-
-	testing::internal::CaptureStdout();
-	two_vertex_graph.PrintGraph(3);
-	const std::string real_output = testing::internal::GetCapturedStdout();
-
-	ASSERT_EQ(expected_output, real_output);
-	EXPECT_DEATH(two_vertex_graph.IsSimpleGraph(), "") << "testing self-loop graph for IsSimpleGraph()";
-}
-
 TEST(GraphAdjListCtorTest, DegreeThreeGraph) {
 	Graph four_vertex_graph{ AdjList{{1,2,3},{0,2,3},{0,1,3},{0,1,2}} };
 	const std::string expected_output = 
@@ -101,11 +305,62 @@ TEST(GraphAdjListCtorTest, DegreeThreeGraph) {
 	const std::string real_output = testing::internal::GetCapturedStdout();
 
 	ASSERT_EQ(expected_output, real_output);
-	ASSERT_TRUE(four_vertex_graph.IsSimpleGraph()) << "testing four_vertex_graph for IsSimpleGraph()";
+	ASSERT_TRUE(four_vertex_graph.IsSimpleGraph()) << "testing four_vertex_graph (same as K4) for IsSimpleGraph()";
 }
 
 
 
+
+
+
+TEST(VertexDegreeTests, SmallThreeVertexGraph) {
+	Graph sample_graph{ AdjList{ {1}, {0}, {}} };
+	
+	EXPECT_EQ(sample_graph.VertexDeg(0), 1);
+	EXPECT_EQ(sample_graph.VertexDeg(1), 1);
+	EXPECT_EQ(sample_graph.VertexDeg(2), 0);
+	EXPECT_TRUE(sample_graph.IsSimpleGraph());
+}
+
+TEST(VertexDegreeTests, K4VertexDegreeTest) {
+	Graph sample_graph = Graph::K_4; //uses copy constructor
+
+	for (int i = 0; i < sample_graph.VertexCount(); ++i) {
+		ASSERT_EQ(sample_graph.VertexDeg(i), 3);
+	}
+
+	EXPECT_TRUE(sample_graph.IsSimpleGraph());
+}
+
+TEST(VertexDegreeTests, VertexOutOfRangeExpectsAssertionFailure) {
+	Graph sample_graph = Graph::K_4;
+	EXPECT_DEATH(sample_graph.VertexDeg(-1), ""); //below range
+	EXPECT_DEATH(sample_graph.VertexDeg(4), ""); //above range
+}
+
+
+
+
+TEST(VertexCountTests, NullGraphVertexCountShouldBe0) {
+	Graph null_graph{ AdjList{} };
+	ASSERT_EQ(null_graph.VertexCount(), 0);
+}
+
+TEST(VertexCountTests, K4GraphVertexCountShouldBe4) {
+	Graph graph{ Graph::K_4 };
+	ASSERT_EQ(graph.VertexCount(), 4);
+}
+
+
+TEST(EdgeCountTests, NullGraphEdgeCountShouldBe0) {
+	Graph null_graph{ AdjList{} };
+	EXPECT_EQ(null_graph.EdgeCount(), 0);
+}
+
+TEST(EdgeCountTests, K4GraphEdgeCountShouldBe6) {
+	Graph K4_graph{ Graph::K_4 };
+	EXPECT_EQ(K4_graph.EdgeCount(), 6);
+}
 
 
 
