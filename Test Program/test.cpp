@@ -352,16 +352,115 @@ TEST(VertexCountTests, K4GraphVertexCountShouldBe4) {
 }
 
 
+
+
+TEST(AddVertexTests, NullGraphGetsVerticesAdded) {
+	Graph null_graph{ AdjList{} };
+
+	//graph has no vertices right now
+	std::string expected_output =
+		"";
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	null_graph.PrintGraph(3);
+	std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+
+
+
+
+	//add extra vertices
+	null_graph.AddVertex(4);
+	expected_output =
+		"0:\n"
+		"1:\n"
+		"2:\n"
+		"3:\n";
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	null_graph.PrintGraph(3);
+	real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+
+
+
+
+	//add 1 extra vertex using the default parameter for Graph::AddVertex()
+	null_graph.AddVertex();
+	expected_output =
+		"0:\n"
+		"1:\n"
+		"2:\n"
+		"3:\n"
+		"4:\n";
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	null_graph.PrintGraph(3);
+	real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+}
+
+
+
+
+TEST(RemoveVertexTests, K4GetsAllVerticesRemovedFromLastToFirst) {
+	Graph g{ Graph::K_4 };
+
+	g.RemoveVertex(3);
+
+
+}
+
+
+
+
+
 TEST(EdgeCountTests, NullGraphEdgeCountShouldBe0) {
 	Graph null_graph{ AdjList{} };
 	EXPECT_EQ(null_graph.EdgeCount(), 0);
+	ASSERT_TRUE(null_graph.IsSimpleGraph());
 }
 
 TEST(EdgeCountTests, K4GraphEdgeCountShouldBe6) {
 	Graph K4_graph{ Graph::K_4 };
 	EXPECT_EQ(K4_graph.EdgeCount(), 6);
+	ASSERT_TRUE(K4_graph.IsSimpleGraph());
 }
 
+
+
+TEST(FindEdgeTests, ValidVertex)
+{
+	Graph g{ AdjList{{1, 2}, {0}, {0}} };
+	ASSERT_TRUE(g.FindEdge(0, 1) != nullptr);
+	ASSERT_TRUE(g.FindEdge(0, 2) != nullptr);
+	ASSERT_TRUE(g.FindEdge(1, 0) != nullptr);
+	ASSERT_TRUE(g.FindEdge(2, 0) != nullptr);
+	ASSERT_TRUE(g.IsSimpleGraph());
+}
+
+TEST(FindEdgeTests, InvalidVertex)
+{
+	Graph g{ AdjList{{1, 2}, {0}, {0}} };
+	EXPECT_DEATH(g.FindEdge(2, 2), "");
+	EXPECT_DEATH(g.FindEdge(10, 2), "");
+	EXPECT_DEATH(g.FindEdge(2, 20), "");
+	EXPECT_DEATH(g.FindEdge(20, 20), "");
+	ASSERT_TRUE(g.IsSimpleGraph());
+}
+
+TEST(FindEdgeTests, NonExistantEdge)
+{
+	Graph g{ AdjList{{1, 2}, {0}, {0}} };
+	EXPECT_TRUE(g.FindEdge(1, 2) == nullptr);
+	ASSERT_TRUE(g.IsSimpleGraph());
+}
 
 
 
@@ -387,7 +486,7 @@ TEST(GraphHasEdgeTest, InvalidVertex)
 	ASSERT_TRUE(g.IsSimpleGraph());
 }
 
-TEST(GraphHasEdgeTest, NonExistedEdge)
+TEST(GraphHasEdgeTest, NonExistantEdge)
 {
 	Graph g{ AdjList{{1, 2}, {0}, {0}} };
 	EXPECT_FALSE(g.HasEdge(1, 2));
@@ -399,21 +498,97 @@ TEST(GraphHasEdgeTest, NonExistedEdge)
 
 
 
-TEST(GraphAddEdgeTest, AddValidToEmpty)
+TEST(GraphAddEdgeTest, AddValidEdgeToGraphWith2Vertices)
 {
 	Graph g{AdjList(2)};
 	EXPECT_TRUE(g.AddEdge(0, 1));
 	EXPECT_TRUE(g.HasEdge(0, 1));
+	EXPECT_TRUE(g.HasEdge(1, 0));
 	EXPECT_FALSE(g.AddEdge(0, 1));
 	EXPECT_TRUE(g.HasEdge(0, 1));
+	EXPECT_TRUE(g.HasEdge(1, 0));
 }
 
-
-TEST(GraphAddEdgeTest, AddInvalidEdge)
+TEST(GraphAddEdgeTest, AddInvalidEdgesToGraphWith2Vertices)
 {
 	Graph g{AdjList(2)};
 	EXPECT_DEATH(g.AddEdge(3, 1), "");
 	EXPECT_DEATH(g.AddEdge(1, 3), "");
 	EXPECT_DEATH(g.AddEdge(3, 3), "");
+	EXPECT_DEATH(g.AddEdge(0, 0), "");
+	EXPECT_DEATH(g.AddEdge(-1, 5), "");
 }
+
+
+
+
+TEST(GraphRemoveEdgeTest, RemoveValidEdgesFromK4)
+{
+	Graph g{ Graph::K_4 };
+	
+	EXPECT_EQ(g.EdgeCount(), 6);
+	EXPECT_TRUE(g.HasEdge(0, 1));
+	EXPECT_TRUE(g.HasEdge(1, 0));
+	EXPECT_TRUE(g.RemoveEdge(0, 1));
+	EXPECT_FALSE(g.HasEdge(0, 1));
+	EXPECT_FALSE(g.HasEdge(1, 0));
+	EXPECT_EQ(g.EdgeCount(), 5);
+	
+	EXPECT_EQ(g.EdgeCount(), 5);
+	EXPECT_TRUE(g.HasEdge(3, 1));
+	EXPECT_TRUE(g.HasEdge(1, 3));
+	EXPECT_TRUE(g.RemoveEdge(3, 1));
+	EXPECT_FALSE(g.HasEdge(3, 1));
+	EXPECT_FALSE(g.HasEdge(1, 3));
+	EXPECT_EQ(g.EdgeCount(), 4);
+
+	EXPECT_EQ(g.EdgeCount(), 4);
+	EXPECT_TRUE(g.HasEdge(3, 2));
+	EXPECT_TRUE(g.HasEdge(2, 3));
+	EXPECT_TRUE(g.RemoveEdge(3, 2));
+	EXPECT_FALSE(g.HasEdge(3, 2));
+	EXPECT_FALSE(g.HasEdge(2, 3));
+	EXPECT_EQ(g.EdgeCount(), 3);
+
+	EXPECT_EQ(g.EdgeCount(), 3);
+	EXPECT_TRUE(g.HasEdge(3, 0));
+	EXPECT_TRUE(g.HasEdge(0, 3));
+	EXPECT_TRUE(g.RemoveEdge(3, 0));
+	EXPECT_FALSE(g.HasEdge(3, 0));
+	EXPECT_FALSE(g.HasEdge(0, 3));
+	EXPECT_EQ(g.EdgeCount(), 2);
+
+	EXPECT_EQ(g.EdgeCount(), 2);
+	EXPECT_TRUE(g.HasEdge(2, 0));
+	EXPECT_TRUE(g.HasEdge(0, 2));
+	EXPECT_TRUE(g.RemoveEdge(2, 0));
+	EXPECT_FALSE(g.HasEdge(2, 0));
+	EXPECT_FALSE(g.HasEdge(0, 2));
+	EXPECT_EQ(g.EdgeCount(), 1);
+
+	EXPECT_EQ(g.EdgeCount(), 1);
+	EXPECT_TRUE(g.HasEdge(2, 1));
+	EXPECT_TRUE(g.HasEdge(1, 2));
+	EXPECT_TRUE(g.RemoveEdge(2, 1));
+	EXPECT_FALSE(g.HasEdge(2, 1));
+	EXPECT_FALSE(g.HasEdge(1, 2));
+	EXPECT_EQ(g.EdgeCount(), 0);
+
+	const std::string expected_output =
+		"0:\n"
+		"1:\n"
+		"2:\n"
+		"3:\n";
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	g.PrintGraph(3);
+	const std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+}
+
+
+
+
 

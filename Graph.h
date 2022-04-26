@@ -18,18 +18,19 @@ public:
 
 	int VertexDeg(Vertex vertex) const; 
 	int VertexCount() const; 
-	int EdgeCount() const;
 
+	void AddVertex(int count = 1);
+	void RemoveVertex(Vertex vertex);
+
+
+	int EdgeCount() const;
 	Vertex* FindEdge(Vertex vertex1, Vertex vertex2);
 	bool HasEdge(Vertex vertex1, Vertex vertex2) const;
 
 	bool AddEdge(Vertex vertex1, Vertex vertex2);
 	bool RemoveEdge(Vertex vertex1, Vertex vertex2); 
 
-	void AddVertex(int count = 1);
-	void RemoveVertex(Vertex vertex);
-
-
+	
 
 	void PrintGraph(int width = 3) const; 
 	void Clear();
