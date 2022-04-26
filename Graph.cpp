@@ -124,6 +124,38 @@ bool Graph::IsKVertexConnected(int k) const
     return 1;
 }
 
+void Graph::AddVertex(int count)
+{
+    assert(count >= 1);
+
+    for (int i = 0; i < count; ++i) {
+        adj_list_.PushBack(DynamicArray<Vertex>{});
+    }
+}
+
+void Graph::RemoveVertex(Vertex vertex)
+{
+    assert(vertex < VertexCount() && vertex >= 0);
+
+    //delete the edges on the vertex-to-delete
+    for (const Vertex& c : adj_list_[vertex]) {
+        RemoveEdge(vertex, c);
+    }
+
+    if (vertex < VertexCount() - 1) {
+        //copy the edges from the last vertex to the empty vertex
+        for (const Vertex& c : adj_list_[VertexCount() - 1]) {
+            AddEdge(vertex, c);
+        }
+
+        //recursive call to delete the largest vertex now
+        RemoveVertex(VertexCount() - 1);
+    }
+    else {
+        adj_list_.PopBack();
+    }
+}
+
 ///prints the graph using a given width for each node-number.
 void Graph::PrintGraph(int width) const
 {
@@ -166,9 +198,29 @@ bool Graph::IsSimpleGraph() const //representation invariant
     return true;
 }
 
-/// <summary>
+bool Graph::HasChord(DynamicArray<Vertex> cycle) const
+{
+    assert(cycle.Size() >= 2);
+
+    //loop through all Vertices in the cycle until we find one with a chord
+    for (Vertex i = 0; i < cycle.Size() - 1; ++i) { //it is not necessary to check the final Vertex?
+
+        //get adjacent vertices
+        Vertex adj1 = cycle[(i + 1) % cycle.Size()];
+        Vertex adj2 = cycle[(i - 1 + cycle.Size()) % cycle.Size()];
+
+        //check if it has an edge with a vertex other than with the neighbours
+        for (const Vertex& c : adj_list_[i]) {
+            if (c != adj1 && c != adj2) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 ///return string representation of the adjacent list
-/// </summary>
 Graph::operator std::string() const
 {
     std::string graph_str;

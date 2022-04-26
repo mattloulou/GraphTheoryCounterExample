@@ -25,11 +25,17 @@ public:
 	bool AddEdge(Vertex vertex1, Vertex vertex2);
 	bool RemoveEdge(Vertex vertex1, Vertex vertex2); 
 
+	void AddVertex(int count = 1);
+	void RemoveVertex(Vertex vertex);
+
+
+
 	void PrintGraph(int width = 3) const; 
 	void Clear();
 
 	bool IsKVertexConnected(int k) const; 
 	bool IsSimpleGraph() const; 
+	bool HasChord(DynamicArray<Vertex> cycle) const;
 
 	explicit operator std::string() const;
 
