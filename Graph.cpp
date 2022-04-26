@@ -2,7 +2,10 @@
 #include <algorithm>
 #include <iomanip>
 
-Graph::Graph(AdjList other_adj_list) : adj_list_{ std::move(other_adj_list) } {}
+Graph::Graph(AdjList other_adj_list) : adj_list_{ std::move(other_adj_list) }
+{
+    //empty
+}
 
 int Graph::VertexDeg(Vertex vertex) const
 {
@@ -107,12 +110,12 @@ bool Graph::IsKVertexConnected(int k) const
     return 1;
 }
 
-void Graph::PrintGraph() const
+void Graph::PrintGraph(int width) const
 {
     for (Vertex vertex1 = 0; vertex1 < VertexCount(); ++vertex1) {
-        std::cout << vertex1 << ": ";
+        std::cout << vertex1 << ":";
         for (const Vertex& vertex2 : adj_list_[vertex1]) {
-            std::cout << std::setw(5) << vertex2;
+            std::cout << std::setw(width) << vertex2;
         }
         std::cout << '\n';
     }
@@ -135,6 +138,24 @@ bool Graph::IsWellformed() const //representation invariant
     }
 
     return true;
+}
+
+Graph::operator std::string() const
+{
+    std::string graph_str;
+
+    for (Vertex vertex1 = 0; vertex1 < VertexCount(); ++vertex1)
+    {
+        graph_str += std::to_string(vertex1) + ":";
+
+        for (const Vertex& vertex2 : adj_list_[vertex1])
+        {
+            graph_str += std::to_string(vertex2) + " ";
+        }
+        graph_str += '\n';
+    }
+
+    return graph_str;
 }
 
 const Graph Graph::K_4{ AdjList{{1,2,3},{0,2,3},{0,1,3},{0,1,2}} };
