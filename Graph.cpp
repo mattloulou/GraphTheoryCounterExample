@@ -20,6 +20,12 @@ Graph::Graph(int vertex_count)
     }
 }
 
+///returns the number of vertices in the graph
+int Graph::VertexCount() const
+{
+    return adj_list_.Size();
+}
+
 ///returns the degree of the given vertex (number of edges it has)
 int Graph::VertexDeg(Vertex vertex) const
 {
@@ -27,10 +33,34 @@ int Graph::VertexDeg(Vertex vertex) const
     return adj_list_[vertex].Size();
 }
 
-///returns the number of vertices in the graph
-int Graph::VertexCount() const
+///adds room for another vertex in the adjacency list (with the label/name being the new VertexCount() - 1)
+bool Graph::PushVertex(int count)
 {
-    return adj_list_.Size();
+    assert(count >= 1);
+
+    adj_list_.Resize(adj_list_.Size() + count);
+
+    return true;
+
+    //for (int i = 0; i < count; ++i) {
+    //    adj_list_.PushBack(DynamicArray<Vertex>{});
+    //}
+}
+
+///removes the specified vertex, and renames the largest vertex to the deleted vertex
+bool Graph::PopVertex()
+{
+    assert(VertexCount() > 0);
+    const Vertex last_vertex = VertexCount() - 1;
+
+    //remove the edges on the vertex-to-delete
+    for (const Vertex& c : adj_list_[last_vertex]) {
+        RemoveEdge(last_vertex, c);
+    }
+
+    adj_list_.PopBack();
+
+    return true;
 }
 
 ///returns the number of edges found in the graph
@@ -123,8 +153,21 @@ bool Graph::RemoveEdge(Vertex vertex1, Vertex vertex2)
     return true;
 }
 
+bool Graph::ClearEdges()
+{
+    for(int p = 0; p < VertexCount(); ++p)
+    {
+        for(int c : adj_list_[p])
+        {
+            RemoveEdge(p, c);
+        }
+    }
+
+    return true;
+}
+
 ///remove all edges from a graph
-void Graph::Clear()
+void Graph::ClearGraph()
 {
     adj_list_.Clear();
 }
@@ -135,39 +178,6 @@ bool Graph::IsKVertexConnected(int k) const
     return 1;
 }
 
-///adds room for another vertex in the adjacency list (with the label/name being the new VertexCount() - 1)
-void Graph::AddVertex(int count)
-{
-    assert(count >= 1);
-
-    for (int i = 0; i < count; ++i) {
-        adj_list_.PushBack(DynamicArray<Vertex>{});
-    }
-}
-
-///removes the specified vertex, and renames the largest vertex to the deleted vertex
-void Graph::RemoveVertex(Vertex vertex)
-{
-    assert(vertex < VertexCount() && vertex >= 0);
-
-    //delete the edges on the vertex-to-delete
-    for (const Vertex& c : adj_list_[vertex]) {
-        RemoveEdge(vertex, c);
-    }
-
-    if (vertex < VertexCount() - 1) {
-        //copy the edges from the last vertex to the empty vertex
-        for (const Vertex& c : adj_list_.Back()) {
-            AddEdge(vertex, c);
-        }
-
-        //recursive call to delete the largest vertex now
-        RemoveVertex(VertexCount() - 1);
-    }
-    else {
-        adj_list_.PopBack();
-    }
-}
 
 ///prints the graph using a given width for each node-number.
 void Graph::PrintGraph(int width) const

@@ -354,7 +354,7 @@ TEST(VertexCountTests, K4GraphVertexCountShouldBe4) {
 
 
 
-TEST(AddVertexTests, NullGraphGetsVerticesAdded) {
+TEST(PushVertexTests, NullGraphGetsVerticesAdded) {
 	Graph null_graph{ AdjList{} };
 
 	//graph has no vertices right now
@@ -372,7 +372,7 @@ TEST(AddVertexTests, NullGraphGetsVerticesAdded) {
 
 
 	//add extra vertices
-	null_graph.AddVertex(4);
+	null_graph.PushVertex(4);
 	expected_output =
 		"0:\n"
 		"1:\n"
@@ -390,7 +390,7 @@ TEST(AddVertexTests, NullGraphGetsVerticesAdded) {
 
 
 	//add 1 extra vertex using the default parameter for Graph::AddVertex()
-	null_graph.AddVertex();
+	null_graph.PushVertex();
 	expected_output =
 		"0:\n"
 		"1:\n"
@@ -409,14 +409,65 @@ TEST(AddVertexTests, NullGraphGetsVerticesAdded) {
 
 
 
-TEST(RemoveVertexTests, K4GetsAllVerticesRemovedFromLastToFirst) {
+TEST(PopVertexTests, K4GetsAllVerticesRemoved) {
 	Graph g{ Graph::K_4 };
 
-	g.RemoveVertex(3);
+
+	//remove vertex #3
+	g.PopVertex();
+	std::string expected_output =
+		"0:  1  2\n"
+		"1:  0  2\n"
+		"2:  0  1\n";
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	g.PrintGraph(3);
+	std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_TRUE(g.IsSimpleGraph());
 
 
+	//remove vertex #2
+	g.PopVertex();
+	expected_output =
+		"0:  1\n"
+		"1:  0\n";
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	g.PrintGraph(3);
+	real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_TRUE(g.IsSimpleGraph());
+
+	//remove vertex #1
+	g.PopVertex();
+	expected_output =
+		"0:\n";
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	g.PrintGraph(3);
+	real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_TRUE(g.IsSimpleGraph());
+
+	//remove vertex #0
+	g.PopVertex();
+	expected_output = "";
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	g.PrintGraph(3);
+	real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_TRUE(g.IsSimpleGraph());
 }
-
 
 
 
@@ -466,7 +517,7 @@ TEST(FindEdgeTests, NonExistantEdge)
 
 
 
-TEST(GraphHasEdgeTest, ValidVertex)
+TEST(HasEdgeTest, ValidVertex)
 {
 	Graph g{ AdjList{{1, 2}, {0}, {0}} };
     ASSERT_TRUE(g.HasEdge(0, 1)) ;
@@ -476,7 +527,7 @@ TEST(GraphHasEdgeTest, ValidVertex)
 	ASSERT_TRUE(g.IsSimpleGraph());
 }
 
-TEST(GraphHasEdgeTest, InvalidVertex)
+TEST(HasEdgeTest, InvalidVertex)
 {
 	Graph g{ AdjList{{1, 2}, {0}, {0}} };
 	EXPECT_DEATH(g.HasEdge(2, 2), "");
@@ -486,7 +537,7 @@ TEST(GraphHasEdgeTest, InvalidVertex)
 	ASSERT_TRUE(g.IsSimpleGraph());
 }
 
-TEST(GraphHasEdgeTest, NonExistantEdge)
+TEST(HasEdgeTest, NonExistantEdge)
 {
 	Graph g{ AdjList{{1, 2}, {0}, {0}} };
 	EXPECT_FALSE(g.HasEdge(1, 2));
@@ -498,7 +549,7 @@ TEST(GraphHasEdgeTest, NonExistantEdge)
 
 
 
-TEST(GraphAddEdgeTest, AddValidEdgeToGraphWith2Vertices)
+TEST(AddEdgeTest, AddValidEdgeToGraphWith2Vertices)
 {
 	Graph g{AdjList(2)};
 	EXPECT_TRUE(g.AddEdge(0, 1));
@@ -509,7 +560,7 @@ TEST(GraphAddEdgeTest, AddValidEdgeToGraphWith2Vertices)
 	EXPECT_TRUE(g.HasEdge(1, 0));
 }
 
-TEST(GraphAddEdgeTest, AddInvalidEdgesToGraphWith2Vertices)
+TEST(AddEdgeTest, AddInvalidEdgesToGraphWith2Vertices)
 {
 	Graph g{AdjList(2)};
 	EXPECT_DEATH(g.AddEdge(3, 1), "");
@@ -522,7 +573,7 @@ TEST(GraphAddEdgeTest, AddInvalidEdgesToGraphWith2Vertices)
 
 
 
-TEST(GraphRemoveEdgeTest, RemoveValidEdgesFromK4)
+TEST(RemoveEdgeTest, RemoveValidEdgesFromK4)
 {
 	Graph g{ Graph::K_4 };
 	
