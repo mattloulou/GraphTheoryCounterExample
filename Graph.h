@@ -37,10 +37,12 @@ public:
 
 	bool IsKVertexConnected(int k) const; 
 	bool IsSimpleGraph() const; 
-	bool HasChord(DynamicArray<Vertex> cycle) const;
+	bool HasChord(const DynamicArray<Vertex>& cycle) const;
+	bool IsValidDirectionalCycle(const DynamicArray<Vertex>& cycle) const;
 
 	explicit operator std::string() const;
 
 	static const Graph K_4;
+	static DynamicArray<DynamicArray<Vertex>> AllPermutations(const int& max_size);
 };
 

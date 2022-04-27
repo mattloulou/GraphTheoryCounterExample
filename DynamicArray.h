@@ -23,10 +23,10 @@ public:
     using value_type = Var;
 
     DynamicArray();  //defaul constructor
-    DynamicArray(const Var* arr, int size);        //converts primitive Var array to DynamicArray
-    DynamicArray(const Var* begin, const Var* end); //converts a section of a primitive Var array to a DynamicArray. end is exclusive
     DynamicArray(std::initializer_list<Var> lst); //    DynamicArray<T> name{1,2,3,4,5,...};
-    DynamicArray(int new_size, const Var& val = Var{}); // DynamicArray<T> name(5, 70); => 70, 70, 70, 70, 70
+    explicit DynamicArray(const Var* arr, int size);        //converts primitive Var array to DynamicArray
+    explicit DynamicArray(const Var* begin, const Var* end); //converts a section of a primitive Var array to a DynamicArray. end is exclusive
+    explicit DynamicArray(int new_size, const Var& val = Var{}); // DynamicArray<T> name(5, 70); => 70, 70, 70, 70, 70
     DynamicArray(const DynamicArray& rhs); //copy ctor
     DynamicArray(DynamicArray&& rhs) noexcept; //will learn in upper-years...
     ~DynamicArray(); //dtor
@@ -300,7 +300,7 @@ void DynamicArray<Var>::Resize(int new_size, const Var& val)
         Reserve(new_size);
 
         //fill with the new objects
-        std::uninitialized_fill(data_ + size_, data_ + new_size, Var());
+        std::uninitialized_fill(data_ + size_, data_ + new_size, val);
     }
 
     size_ = new_size;

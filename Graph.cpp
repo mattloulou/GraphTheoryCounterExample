@@ -153,7 +153,7 @@ bool Graph::RemoveEdge(Vertex vertex1, Vertex vertex2)
     return true;
 }
 
-//removes all edges from a single vertex
+//removes all edges from a single specified vertex
 bool Graph::ClearEdges(Vertex vertex)
 {
     assert(0 <= vertex && vertex < VertexCount());
@@ -166,6 +166,7 @@ bool Graph::ClearEdges(Vertex vertex)
     return true;
 }
 
+///removes all edges from all vertices in the graph
 bool Graph::ClearEdges()
 {
     for(int p = 0; p < VertexCount(); ++p)
@@ -235,9 +236,9 @@ bool Graph::IsSimpleGraph() const //representation invariant
 }
 
 /// The cycle must have a unique list of vertices (end != beginning)
-bool Graph::HasChord(DynamicArray<Vertex> cycle) const
+bool Graph::HasChord(const DynamicArray<Vertex>& cycle) const
 {
-    /*if (cycle.Size() <= 3) return false;*/
+    /*if (cycle.Size() <= 3) return false;*/ //I turned this off just to test the algorithm
     
     //make sure cycle is unique
     std::unordered_set<Vertex> vertices;
@@ -262,7 +263,36 @@ bool Graph::HasChord(DynamicArray<Vertex> cycle) const
         }
     }
 
+
+
+    //try to replace above with HasEdge() 
+
     return false;
+}
+
+//checks if the given cycle is a valid directional cycle. Cycle traversal direction is v0 --> v1 --> v2, etc
+bool Graph::IsValidDirectionalCycle(const DynamicArray<Vertex>& cycle) const
+{
+    //make sure cycle is unique
+    #ifdef _DEBUG
+    std::unordered_set<Vertex> vertices;
+    for (const Vertex& v : cycle) {
+        assert(!vertices.contains(v));
+        vertices.insert(v);
+    }
+    #endif
+
+    if (cycle.Size() < 3) return false;
+
+    for (int i = 0; i < cycle.Size(); ++i) {
+
+        const Vertex current_vertex = cycle[i]; //current vertex in the cycle
+        const Vertex next_vertex = cycle[(i + 1) % cycle.Size()]; //next vertex in the cycle
+
+        if (!HasEdge(current_vertex, next_vertex)) return false;
+    }
+
+    return true;
 }
 
 ///return string representation of the adjacent list
@@ -286,3 +316,48 @@ Graph::operator std::string() const
 
 ///standard K_4 graph
 const Graph Graph::K_4{ AdjList{{1,2,3},{0,2,3},{0,1,3},{0,1,2}} };
+
+///Returns a list of all the possible permutations of all the vertices in the graph
+DynamicArray<DynamicArray<Vertex>> Graph::AllPermutations(const int& max_size)
+{
+    assert(max_size >= 0);
+
+
+    DynamicArray<DynamicArray<Vertex>> cycles{ 1 };
+    int first_cycle = 0; //first cycle of the size we are now generating
+    int current_batch_cycle_count = 0; //size of the current batch of cycles (set to 0 for now for clean code)
+    int next_batch_cycle_count = 1; //size of the next batch of cycles (1 size larger). It is set 1 by default for the batch of cycles of Size()==0 (there is only 1)
+
+    while (cycles.Back().Size() != max_size) { //this should loop 4 times (equal to num_vertices). Each loop will create all permutations of 1 size larger
+
+        int num_cycles = cycles.Size();
+        first_cycle += current_batch_cycle_count;
+        current_batch_cycle_count = next_batch_cycle_count;
+        next_batch_cycle_count = 0;
+
+        //loop through each existing cycle
+        for (int i = first_cycle; i < num_cycles; ++i) {
+
+            const DynamicArray<Vertex> this_cycle = cycles[i];
+
+            //find which vertices this cycle has
+            std::unordered_set<Vertex> vertices;
+            for (const auto& v : this_cycle) {
+                vertices.insert(v);
+            }
+
+            //for each possible vertex, if it is not in this_cycle, we will make a duplicate cycle with this vertex appended
+            for (Vertex j = 0; j < max_size; ++j) {
+                if (!vertices.contains(j)) {
+                    DynamicArray<Vertex> new_cycle{ this_cycle };
+                    new_cycle.PushBack(j);
+                    cycles.PushBack(new_cycle);
+                    ++next_batch_cycle_count;
+                }
+            }
+        }
+    }
+
+    return cycles;
+}
+

@@ -897,45 +897,152 @@ TEST(ClearGraphTest, UseClearGraphOnK4ResultsInNullGraph) {
 
 TEST(HasChordTest, TestAllCyclesOnK4OnlyCyclesWith4VerticesShouldHaveAChord) {
 
+	////this procedure is possible since K_4 is a complete graph (all vertices are connected to each other by unique edges
+	////generate all possible cycles consisting of those 4 vertices
+	//const int num_vertices = 4;
+	//DynamicArray<DynamicArray<Vertex>> cycles{ 1 };
+	//
+	////print out the starting 
+	////std::cout << std::endl << "size: " << cycles.Size();
+	////std::cout << "List of cycles:" << std::endl;
+	////int count2 = 0;
+	////for (const auto& cycle : cycles) {
+	////	std::cout << "cycle number " << count2 << ": ";
+	////	for (const auto& v : cycle) {
+	////		std::cout << v << " ";
+	////	}
+	////	std::cout << "\n";
+	////	++count2;
+	////}
 
-	//this procedure is possible since K_4 is a complete graph (all vertices are connected to each other by unique edges
-	//generate all possible cycles consisting of those 4 vertices
-	const int num_vertices = 4;
-	DynamicArray<DynamicArray<Vertex>> cycles{ 1 };
-	
-	while (cycles.Back().Size() != num_vertices) { //this should loop 4 times (equal to num_vertices)
+	////permutation generator (for all unique combinations of 0 to all vertices):
 
-		int num_cycles = cycles.Size();
-		//loop through each existing cycle
-		for (int i = 0; i < num_cycles; ++i) {
+	//int first_cycle = 0; //first cycle of the size we are now generating
+	//int current_batch_cycle_count = 0; //size of the current batch of cycles (set to 0 for now for clean code)
+	//int next_batch_cycle_count = 1; //size of the next batch of cycles (1 size larger). It is set 1 by default for the batch of cycles of Size()==0 (there is only 1)
 
-			//find which vertices this cycle has
-			std::unordered_set<Vertex> vertices;
-			for (Vertex v : cycles[i]) {
-				vertices.insert(v);
-			}
+	//while (cycles.Back().Size() != num_vertices) { //this should loop 4 times (equal to num_vertices). Each loop will create all permutations of 1 size larger
 
-			//for each possible vertex, if it is not in the cycle, we will make a duplicate cycle with this vertex appended
-			for (Vertex j = 0; j < num_vertices; ++j) {
-				if (!vertices.contains(j)) {
-					DynamicArray<Vertex> new_cycle{ cycles[i] };
-					new_cycle.PushBack(j);
-					cycles.PushBack(new_cycle);
-				}
-			}
-		}
-	}
+	//	int num_cycles = cycles.Size();
+	//	first_cycle += current_batch_cycle_count;
+	//	current_batch_cycle_count = next_batch_cycle_count;
+	//	next_batch_cycle_count = 0;
+
+	//	//loop through each existing cycle
+	//	for (int i = first_cycle; i < num_cycles; ++i) {
+
+	//		const DynamicArray<Vertex> this_cycle = cycles[i];
+
+	//		//find which vertices this cycle has
+	//		std::unordered_set<Vertex> vertices;
+	//		for (const auto& v : this_cycle) {
+	//			vertices.insert(v);
+	//		}
+
+	//		//for each possible vertex, if it is not in this_cycle, we will make a duplicate cycle with this vertex appended
+	//		for (Vertex j = 0; j < num_vertices; ++j) {
+	//			if (!vertices.contains(j)) {
+	//				DynamicArray<Vertex> new_cycle{ this_cycle };
+	//				new_cycle.PushBack(j);
+	//				cycles.PushBack(new_cycle);
+	//				++next_batch_cycle_count;
+	//			}
+	//		}
+	//	}
+	//}
+
+	//list out all of the generated cycles
+	//std::cout << std::endl << "size: " << cycles.Size();
+	//std::cout << "List of cycles:" << std::endl;
+	//int count = 0;
+	//for (const auto& cycle : cycles) {
+	//	std::cout << "cycle number " << count << ": ";
+	//	for (const auto& v : cycle) {
+	//		std::cout << v << " ";
+	//	}
+	//	std::cout << "\n";
+	//	++count;
+	//}
+
 
 	Graph K4{ Graph::K_4 };
 
+	DynamicArray<DynamicArray<Vertex>> cycles = Graph::AllPermutations(4);
+	EXPECT_TRUE(cycles.Size() == 65);
+
 	for (const auto& cycle : cycles) {
-		if (cycle.Size() == num_vertices) {
+		if (cycle.Size() == 4) {
 			EXPECT_TRUE(K4.HasChord(cycle));
 		}
 		else {
 			EXPECT_FALSE(K4.HasChord(cycle));
 		}
 	}
+}
+
+TEST(HasChordTest, TestSomeCyclesInArbitraryGraph) {
+	Graph sample_graph{ AdjList{{1,2}, {0,2,3}, {0,1,3}, {1,2}} };
+	EXPECT_TRUE(sample_graph.HasChord(DynamicArray<Vertex>{0, 1, 2, 3}));
+	EXPECT_TRUE(sample_graph.HasChord(DynamicArray<Vertex>{1, 2, 3, 0}));
+	EXPECT_TRUE(sample_graph.HasChord(DynamicArray<Vertex>{2, 3, 0, 1}));
+	EXPECT_TRUE(sample_graph.HasChord(DynamicArray<Vertex>{3, 0, 1, 2}));
+}
 
 
+
+
+
+TEST(IsValidDirectionalCycleTest, CheckEmptyCycleEXPFalse)
+{
+    DynamicArray<Vertex> direction;
+
+    Graph k4 = Graph::K_4;
+
+    EXPECT_FALSE(k4.IsValidDirectionalCycle(direction));
+}
+
+TEST(IsValidDirectionalCycleTest, CheckInvalidCycleWithInvalidVertexEXPDeath)
+{
+    DynamicArray<Vertex> direction{ 9 ,5, 3, 1};
+
+    Graph k4 = Graph::K_4;
+
+    EXPECT_DEATH(k4.IsValidDirectionalCycle(direction), "");
+}
+
+TEST(IsValidDirectionalCycleTest, CheckInvalidCycleWithSameVertexEXPDeath)
+{
+    DynamicArray<Vertex> direction{ 0, 0 };
+
+    Graph k4 = Graph::K_4;
+
+    EXPECT_DEATH(k4.IsValidDirectionalCycle(direction), "");
+}
+
+TEST(IsValidDirectionalCycleTest, CheckInvalidCycleWithSameVertexEXPFalse)
+{
+    DynamicArray<Vertex> direction{ 0 };
+
+    Graph k4 = Graph::K_4;
+
+    EXPECT_FALSE(k4.IsValidDirectionalCycle(direction));
+}
+
+
+TEST(IsValidDirectionalCycleTest, CheckValidCycleExpectTrue)
+{
+    DynamicArray<Vertex> direction{ 0, 1, 2, 3};
+
+    Graph k4 = Graph::K_4;
+
+    EXPECT_TRUE(k4.IsValidDirectionalCycle(direction));
+}
+
+TEST(IsValidDirectionalCycleTest, CheckValidCycleExpectFalse)
+{
+    DynamicArray<Vertex> direction{ 0, 1, 2, 3};
+
+    Graph graph{ AdjList{ {1,2},{0,2,3},{0,1,3},{1,2} } };
+
+    EXPECT_FALSE(graph.IsValidDirectionalCycle(direction));
 }
