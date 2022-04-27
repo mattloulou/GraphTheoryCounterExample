@@ -29,6 +29,7 @@ public:
 	bool HasEdge(Vertex vertex1, Vertex vertex2) const;
 	bool AddEdge(Vertex vertex1, Vertex vertex2);
 	bool RemoveEdge(Vertex vertex1, Vertex vertex2);
+	bool ClearEdges(Vertex vertex);
 	bool ClearEdges();
 	
 	void ClearGraph();

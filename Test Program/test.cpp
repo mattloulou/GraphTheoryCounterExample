@@ -642,4 +642,300 @@ TEST(RemoveEdgeTest, RemoveValidEdgesFromK4)
 
 
 
+TEST(ClearEdgesTest, ClearEdgesOneVertexATimeForK4)
+{
+	Graph g{ Graph::K_4 };
 
+	//remove all edges for vertex #3
+	EXPECT_EQ(g.EdgeCount(), 6);
+	EXPECT_TRUE(g.HasEdge(0, 1));
+	EXPECT_TRUE(g.HasEdge(1, 0));
+	EXPECT_TRUE(g.HasEdge(0, 2));
+	EXPECT_TRUE(g.HasEdge(2, 0));
+	EXPECT_TRUE(g.HasEdge(0, 3));
+	EXPECT_TRUE(g.HasEdge(3, 0));
+	EXPECT_TRUE(g.HasEdge(2, 1));
+	EXPECT_TRUE(g.HasEdge(1, 2));
+	EXPECT_TRUE(g.HasEdge(3, 1));
+	EXPECT_TRUE(g.HasEdge(1, 3));
+	EXPECT_TRUE(g.HasEdge(2, 3));
+	EXPECT_TRUE(g.HasEdge(3, 2));
+	EXPECT_TRUE(g.ClearEdges(3));
+	EXPECT_TRUE(g.HasEdge(0, 1));
+	EXPECT_TRUE(g.HasEdge(1, 0));
+	EXPECT_TRUE(g.HasEdge(0, 2));
+	EXPECT_TRUE(g.HasEdge(2, 0));
+	EXPECT_FALSE(g.HasEdge(0, 3));
+	EXPECT_FALSE(g.HasEdge(3, 0));
+	EXPECT_TRUE(g.HasEdge(2, 1));
+	EXPECT_TRUE(g.HasEdge(1, 2));
+	EXPECT_FALSE(g.HasEdge(3, 1));
+	EXPECT_FALSE(g.HasEdge(1, 3));
+	EXPECT_FALSE(g.HasEdge(2, 3));
+	EXPECT_FALSE(g.HasEdge(3, 2));
+	EXPECT_EQ(g.EdgeCount(), 3);
+
+	//remove all edges for vertex #2
+	EXPECT_EQ(g.EdgeCount(), 3);
+	EXPECT_TRUE(g.HasEdge(0, 1));
+	EXPECT_TRUE(g.HasEdge(1, 0));
+	EXPECT_TRUE(g.HasEdge(0, 2));
+	EXPECT_TRUE(g.HasEdge(2, 0));
+	EXPECT_FALSE(g.HasEdge(0, 3));
+	EXPECT_FALSE(g.HasEdge(3, 0));
+	EXPECT_TRUE(g.HasEdge(2, 1));
+	EXPECT_TRUE(g.HasEdge(1, 2));
+	EXPECT_FALSE(g.HasEdge(3, 1));
+	EXPECT_FALSE(g.HasEdge(1, 3));
+	EXPECT_FALSE(g.HasEdge(2, 3));
+	EXPECT_FALSE(g.HasEdge(3, 2));
+	EXPECT_TRUE(g.ClearEdges(2));
+	EXPECT_TRUE(g.HasEdge(0, 1));
+	EXPECT_TRUE(g.HasEdge(1, 0));
+	EXPECT_FALSE(g.HasEdge(0, 2));
+	EXPECT_FALSE(g.HasEdge(2, 0));
+	EXPECT_FALSE(g.HasEdge(0, 3));
+	EXPECT_FALSE(g.HasEdge(3, 0));
+	EXPECT_FALSE(g.HasEdge(2, 1));
+	EXPECT_FALSE(g.HasEdge(1, 2));
+	EXPECT_FALSE(g.HasEdge(3, 1));
+	EXPECT_FALSE(g.HasEdge(1, 3));
+	EXPECT_FALSE(g.HasEdge(2, 3));
+	EXPECT_FALSE(g.HasEdge(3, 2));
+	EXPECT_EQ(g.EdgeCount(), 1);
+
+	//remove all edges for vertex #2 again (nothing should change)
+	EXPECT_EQ(g.EdgeCount(), 1);
+	EXPECT_TRUE(g.HasEdge(0, 1));
+	EXPECT_TRUE(g.HasEdge(1, 0));
+	EXPECT_FALSE(g.HasEdge(0, 2));
+	EXPECT_FALSE(g.HasEdge(2, 0));
+	EXPECT_FALSE(g.HasEdge(0, 3));
+	EXPECT_FALSE(g.HasEdge(3, 0));
+	EXPECT_FALSE(g.HasEdge(2, 1));
+	EXPECT_FALSE(g.HasEdge(1, 2));
+	EXPECT_FALSE(g.HasEdge(3, 1));
+	EXPECT_FALSE(g.HasEdge(1, 3));
+	EXPECT_FALSE(g.HasEdge(2, 3));
+	EXPECT_FALSE(g.HasEdge(3, 2));
+	EXPECT_TRUE(g.ClearEdges(2));
+	EXPECT_TRUE(g.HasEdge(0, 1));
+	EXPECT_TRUE(g.HasEdge(1, 0));
+	EXPECT_FALSE(g.HasEdge(0, 2));
+	EXPECT_FALSE(g.HasEdge(2, 0));
+	EXPECT_FALSE(g.HasEdge(0, 3));
+	EXPECT_FALSE(g.HasEdge(3, 0));
+	EXPECT_FALSE(g.HasEdge(2, 1));
+	EXPECT_FALSE(g.HasEdge(1, 2));
+	EXPECT_FALSE(g.HasEdge(3, 1));
+	EXPECT_FALSE(g.HasEdge(1, 3));
+	EXPECT_FALSE(g.HasEdge(2, 3));
+	EXPECT_FALSE(g.HasEdge(3, 2));
+	EXPECT_EQ(g.EdgeCount(), 1);
+
+	//remove all edges for vertex #1
+	EXPECT_EQ(g.EdgeCount(), 1);
+	EXPECT_TRUE(g.HasEdge(0, 1));
+	EXPECT_TRUE(g.HasEdge(1, 0));
+	EXPECT_FALSE(g.HasEdge(0, 2));
+	EXPECT_FALSE(g.HasEdge(2, 0));
+	EXPECT_FALSE(g.HasEdge(0, 3));
+	EXPECT_FALSE(g.HasEdge(3, 0));
+	EXPECT_FALSE(g.HasEdge(2, 1));
+	EXPECT_FALSE(g.HasEdge(1, 2));
+	EXPECT_FALSE(g.HasEdge(3, 1));
+	EXPECT_FALSE(g.HasEdge(1, 3));
+	EXPECT_FALSE(g.HasEdge(2, 3));
+	EXPECT_FALSE(g.HasEdge(3, 2));
+	EXPECT_TRUE(g.ClearEdges(1));
+	EXPECT_FALSE(g.HasEdge(0, 1));
+	EXPECT_FALSE(g.HasEdge(1, 0));
+	EXPECT_FALSE(g.HasEdge(0, 2));
+	EXPECT_FALSE(g.HasEdge(2, 0));
+	EXPECT_FALSE(g.HasEdge(0, 3));
+	EXPECT_FALSE(g.HasEdge(3, 0));
+	EXPECT_FALSE(g.HasEdge(2, 1));
+	EXPECT_FALSE(g.HasEdge(1, 2));
+	EXPECT_FALSE(g.HasEdge(3, 1));
+	EXPECT_FALSE(g.HasEdge(1, 3));
+	EXPECT_FALSE(g.HasEdge(2, 3));
+	EXPECT_FALSE(g.HasEdge(3, 2));
+	EXPECT_EQ(g.EdgeCount(), 0);
+
+
+	const std::string expected_output =
+		"0:\n"
+		"1:\n"
+		"2:\n"
+		"3:\n";
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	g.PrintGraph(3);
+	const std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+}
+
+TEST(ClearEdgesTest, ClearEdgesAllAtOnceForK4)
+{
+	Graph g{ Graph::K_4 };
+
+	//remove all edges for vertex #3
+	EXPECT_EQ(g.EdgeCount(), 6);
+	EXPECT_TRUE(g.HasEdge(0, 1));
+	EXPECT_TRUE(g.HasEdge(1, 0));
+	EXPECT_TRUE(g.HasEdge(0, 2));
+	EXPECT_TRUE(g.HasEdge(2, 0));
+	EXPECT_TRUE(g.HasEdge(0, 3));
+	EXPECT_TRUE(g.HasEdge(3, 0));
+	EXPECT_TRUE(g.HasEdge(2, 1));
+	EXPECT_TRUE(g.HasEdge(1, 2));
+	EXPECT_TRUE(g.HasEdge(3, 1));
+	EXPECT_TRUE(g.HasEdge(1, 3));
+	EXPECT_TRUE(g.HasEdge(2, 3));
+	EXPECT_TRUE(g.HasEdge(3, 2));
+	EXPECT_TRUE(g.ClearEdges());
+	EXPECT_FALSE(g.HasEdge(0, 1));
+	EXPECT_FALSE(g.HasEdge(1, 0));
+	EXPECT_FALSE(g.HasEdge(0, 2));
+	EXPECT_FALSE(g.HasEdge(2, 0));
+	EXPECT_FALSE(g.HasEdge(0, 3));
+	EXPECT_FALSE(g.HasEdge(3, 0));
+	EXPECT_FALSE(g.HasEdge(2, 1));
+	EXPECT_FALSE(g.HasEdge(1, 2));
+	EXPECT_FALSE(g.HasEdge(3, 1));
+	EXPECT_FALSE(g.HasEdge(1, 3));
+	EXPECT_FALSE(g.HasEdge(2, 3));
+	EXPECT_FALSE(g.HasEdge(3, 2));
+	EXPECT_EQ(g.EdgeCount(), 0);
+
+	//removing all edges again (nothing should change)
+	EXPECT_EQ(g.EdgeCount(), 0);
+	EXPECT_FALSE(g.HasEdge(0, 1));
+	EXPECT_FALSE(g.HasEdge(1, 0));
+	EXPECT_FALSE(g.HasEdge(0, 2));
+	EXPECT_FALSE(g.HasEdge(2, 0));
+	EXPECT_FALSE(g.HasEdge(0, 3));
+	EXPECT_FALSE(g.HasEdge(3, 0));
+	EXPECT_FALSE(g.HasEdge(2, 1));
+	EXPECT_FALSE(g.HasEdge(1, 2));
+	EXPECT_FALSE(g.HasEdge(3, 1));
+	EXPECT_FALSE(g.HasEdge(1, 3));
+	EXPECT_FALSE(g.HasEdge(2, 3));
+	EXPECT_FALSE(g.HasEdge(3, 2));
+	EXPECT_TRUE(g.ClearEdges());
+	EXPECT_FALSE(g.HasEdge(0, 1));
+	EXPECT_FALSE(g.HasEdge(1, 0));
+	EXPECT_FALSE(g.HasEdge(0, 2));
+	EXPECT_FALSE(g.HasEdge(2, 0));
+	EXPECT_FALSE(g.HasEdge(0, 3));
+	EXPECT_FALSE(g.HasEdge(3, 0));
+	EXPECT_FALSE(g.HasEdge(2, 1));
+	EXPECT_FALSE(g.HasEdge(1, 2));
+	EXPECT_FALSE(g.HasEdge(3, 1));
+	EXPECT_FALSE(g.HasEdge(1, 3));
+	EXPECT_FALSE(g.HasEdge(2, 3));
+	EXPECT_FALSE(g.HasEdge(3, 2));
+	EXPECT_EQ(g.EdgeCount(), 0);
+
+	const std::string expected_output =
+		"0:\n"
+		"1:\n"
+		"2:\n"
+		"3:\n";
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	g.PrintGraph(3);
+	const std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+}
+
+
+
+
+TEST(ClearGraphTest, UseClearGraphOnK4ResultsInNullGraph) {
+	Graph K4{ Graph::K_4 };
+	std::string expected_output =
+		"0:  1  2  3\n"
+		"1:  0  2  3\n"
+		"2:  0  1  3\n"
+		"3:  0  1  2\n";
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	K4.PrintGraph(3);
+	std::string real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_TRUE(K4.IsSimpleGraph()) <<
+		"testing all conditions for IsSimpleGraph()."
+		"Graph should pass all assertions, and thus the function call returns true";
+
+	//clear the graph
+	K4.ClearGraph();
+
+	expected_output =
+		"";
+
+	//capture printed statements
+	testing::internal::CaptureStdout();
+	K4.PrintGraph(3);
+	real_output = testing::internal::GetCapturedStdout();
+
+	ASSERT_EQ(expected_output, real_output);
+	EXPECT_TRUE(K4.IsSimpleGraph()) <<
+		"testing all conditions for IsSimpleGraph()."
+		"Graph should pass all assertions, and thus the function call returns true";
+}
+
+
+
+
+
+TEST(HasChordTest, TestAllCyclesOnK4OnlyCyclesWith4VerticesShouldHaveAChord) {
+
+
+	//this procedure is possible since K_4 is a complete graph (all vertices are connected to each other by unique edges
+	//generate all possible cycles consisting of those 4 vertices
+	const int num_vertices = 4;
+	DynamicArray<DynamicArray<Vertex>> cycles{ 1 };
+	
+	while (cycles.Back().Size() != num_vertices) { //this should loop 4 times (equal to num_vertices)
+
+		int num_cycles = cycles.Size();
+		//loop through each existing cycle
+		for (int i = 0; i < num_cycles; ++i) {
+
+			//find which vertices this cycle has
+			std::unordered_set<Vertex> vertices;
+			for (Vertex v : cycles[i]) {
+				vertices.insert(v);
+			}
+
+			//for each possible vertex, if it is not in the cycle, we will make a duplicate cycle with this vertex appended
+			for (Vertex j = 0; j < num_vertices; ++j) {
+				if (!vertices.contains(j)) {
+					DynamicArray<Vertex> new_cycle{ cycles[i] };
+					new_cycle.PushBack(j);
+					cycles.PushBack(new_cycle);
+				}
+			}
+		}
+	}
+
+	Graph K4{ Graph::K_4 };
+
+	for (const auto& cycle : cycles) {
+		if (cycle.Size() == num_vertices) {
+			EXPECT_TRUE(K4.HasChord(cycle));
+		}
+		else {
+			EXPECT_FALSE(K4.HasChord(cycle));
+		}
+	}
+
+
+}

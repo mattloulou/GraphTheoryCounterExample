@@ -153,6 +153,19 @@ bool Graph::RemoveEdge(Vertex vertex1, Vertex vertex2)
     return true;
 }
 
+//removes all edges from a single vertex
+bool Graph::ClearEdges(Vertex vertex)
+{
+    assert(0 <= vertex && vertex < VertexCount());
+
+    for (int c : adj_list_[vertex])
+    {
+        RemoveEdge(vertex, c);
+    }
+
+    return true;
+}
+
 bool Graph::ClearEdges()
 {
     for(int p = 0; p < VertexCount(); ++p)
@@ -224,27 +237,26 @@ bool Graph::IsSimpleGraph() const //representation invariant
 /// The cycle must have a unique list of vertices (end != beginning)
 bool Graph::HasChord(DynamicArray<Vertex> cycle) const
 {
-    assert(cycle.Size() >= 2);
+    /*if (cycle.Size() <= 3) return false;*/
     
     //make sure cycle is unique
-    #ifdef _DEBUG
     std::unordered_set<Vertex> vertices;
     for (const Vertex& v : cycle) {
         assert(!vertices.contains(v));
         vertices.insert(v);
     }
-    #endif
 
     //loop through all Vertices in the cycle until we find one with a chord
-    for (Vertex i = 0; i < cycle.Size() - 1; ++i) { //it is not necessary to check the final Vertex?
+    for (int i = 0; i < cycle.Size() - 1; ++i) { //these are the indicies for the Vertices within cycle. //it is not necessary to check the final Vertex?
 
-        //get adjacent vertices
-        Vertex adj1 = cycle[(i + 1) % cycle.Size()];
-        Vertex adj2 = cycle[(i - 1 + cycle.Size()) % cycle.Size()];
+        //get adjacent and current vertices
+        const Vertex adj1 = cycle[(i + 1) % cycle.Size()];
+        const Vertex adj2 = cycle[(i - 1 + cycle.Size()) % cycle.Size()];
+        const Vertex current_vertex = cycle[i];
 
-        //check if it has an edge with a vertex other than with the neighbours
-        for (const Vertex& c : adj_list_[i]) {
-            if (c != adj1 && c != adj2) {
+        //check if it has an edge with a vertex in the cycle other than with the neighbours
+        for (const Vertex& c : adj_list_[current_vertex]) {
+            if (c != adj1 && c != adj2 && vertices.contains(c)) {
                 return true;
             }
         }
