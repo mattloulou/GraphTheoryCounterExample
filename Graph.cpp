@@ -235,11 +235,16 @@ bool Graph::IsSimpleGraph() const //representation invariant
     return true;
 }
 
-/// The cycle must have a unique list of vertices (end != beginning)
+/// The cycle must have a unique list of vertices (end != beginning), and must be a valid cycle
 bool Graph::HasChord(const DynamicArray<Vertex>& cycle) const
 {
     /*if (cycle.Size() <= 3) return false;*/ //I turned this off just to test the algorithm
     
+    //this cycle must be a valid cycle to check if it has a chord...
+    if (!IsValidDirectionalCycle(cycle)) return false;
+
+
+
     //make sure cycle is unique
     std::unordered_set<Vertex> vertices;
     for (const Vertex& v : cycle) {
@@ -317,10 +322,10 @@ Graph::operator std::string() const
 ///standard K_4 graph
 const Graph Graph::K_4{ AdjList{{1,2,3},{0,2,3},{0,1,3},{0,1,2}} };
 
-///Returns a list of all the possible permutations of all the vertices in the graph
-DynamicArray<DynamicArray<Vertex>> Graph::AllPermutations(const int& max_size)
+///Returns a list of all the possible permutations of all the vertices in the graph of all sized E [0,max_size)
+DynamicArray<DynamicArray<Vertex>> Graph::AllPermutations(const int& num_choices)
 {
-    assert(max_size >= 0);
+    assert(num_choices >= 0);
 
 
     DynamicArray<DynamicArray<Vertex>> cycles{ 1 };
@@ -328,7 +333,7 @@ DynamicArray<DynamicArray<Vertex>> Graph::AllPermutations(const int& max_size)
     int current_batch_cycle_count = 0; //size of the current batch of cycles (set to 0 for now for clean code)
     int next_batch_cycle_count = 1; //size of the next batch of cycles (1 size larger). It is set 1 by default for the batch of cycles of Size()==0 (there is only 1)
 
-    while (cycles.Back().Size() != max_size) { //this should loop 4 times (equal to num_vertices). Each loop will create all permutations of 1 size larger
+    while (cycles.Back().Size() != num_choices) { //this should loop num_vertices times. Each loop will create all permutations of 1 size larger
 
         int num_cycles = cycles.Size();
         first_cycle += current_batch_cycle_count;
@@ -347,7 +352,7 @@ DynamicArray<DynamicArray<Vertex>> Graph::AllPermutations(const int& max_size)
             }
 
             //for each possible vertex, if it is not in this_cycle, we will make a duplicate cycle with this vertex appended
-            for (Vertex j = 0; j < max_size; ++j) {
+            for (Vertex j = 0; j < num_choices; ++j) {
                 if (!vertices.contains(j)) {
                     DynamicArray<Vertex> new_cycle{ this_cycle };
                     new_cycle.PushBack(j);
@@ -361,3 +366,61 @@ DynamicArray<DynamicArray<Vertex>> Graph::AllPermutations(const int& max_size)
     return cycles;
 }
 
+///Returns a list of all the possible combinations of all the vertices in the graph of all sized E [0,max_size)
+DynamicArray<DynamicArray<Vertex>> Graph::AllCombinations(const int& num_choices)
+{
+    assert(num_choices >= 0);
+
+    DynamicArray<DynamicArray<Vertex>> cycles{ 1 };
+    int first_cycle = 0; //first cycle of the size we are now generating
+    int current_batch_cycle_count = 0; //size of the current batch of cycles (set to 0 for now for clean code)
+    int next_batch_cycle_count = 1; //size of the next batch of cycles (1 size larger). It is set 1 by default for the batch of cycles of Size()==0 (there is only 1)
+
+    while (cycles.Back().Size() != num_choices) { //this should loop num_vertices times. Each loop will create all combinations of 1 size larger (I think)
+
+        int num_cycles = cycles.Size();
+        first_cycle += current_batch_cycle_count;
+        current_batch_cycle_count = next_batch_cycle_count;
+        next_batch_cycle_count = 0;
+
+        //loop through each existing cycle
+        for (int i = first_cycle; i < num_cycles; ++i) {
+
+            const DynamicArray<Vertex> this_cycle = cycles[i];
+
+            //find which vertices this cycle has
+            std::unordered_set<Vertex> vertices;
+            for (const auto& v : this_cycle) {
+                vertices.insert(v);
+            }
+
+            //for each possible vertex, if it is not in this_cycle, we will make a duplicate cycle with this vertex appended
+            //the only difference between this and for permutations is that we will begin right after the last element of this_cycle.
+            Vertex starting_index = (this_cycle.Size() == 0) ? 0 : this_cycle.Back() + 1;
+            for (Vertex j = starting_index; j < num_choices; ++j) {
+                if (!vertices.contains(j)) {
+                    DynamicArray<Vertex> new_cycle{ this_cycle };
+                    new_cycle.PushBack(j);
+                    cycles.PushBack(new_cycle);
+                    ++next_batch_cycle_count;
+                }
+            }
+        }
+    }
+
+    return cycles;
+}
+
+///convertes a vertex list to a string in the form of: "v0 v1 v2 v3".
+std::string Graph::VertexListToString(const DynamicArray<Vertex>& vertex_list)
+{
+    std::string output = "";
+    for (Vertex i = 0; i < vertex_list.Size() - 1; ++i) {
+        output += std::to_string(vertex_list[i]) + " ";
+    }
+
+    if (vertex_list.Size() > 0) {
+        output += std::to_string(vertex_list.Back());
+    }
+    return output;
+}

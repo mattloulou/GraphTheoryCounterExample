@@ -43,6 +43,8 @@ public:
 	explicit operator std::string() const;
 
 	static const Graph K_4;
-	static DynamicArray<DynamicArray<Vertex>> AllPermutations(const int& max_size);
+	static DynamicArray<DynamicArray<Vertex>> AllPermutations(const int& num_choices);
+	static DynamicArray<DynamicArray<Vertex>> AllCombinations(const int& num_choices);
+	static std::string VertexListToString(const DynamicArray<Vertex>& vertex_list);
 };
 

@@ -4,6 +4,7 @@
 //to run this file: https://social.msdn.microsoft.com/Forums/en-US/2fd105f5-6314-4035-8001-50640bbeae30/using-debug-to-run-only-one-project-instead-of-all-in-a-solution?forum=aspvisualstudio
 
 #include <iostream>
+#include <iomanip>
 #include "pch.h"
 #include "../Graph.h"
 #include "../Graph.cpp" //the linker needs this for some reason... It couldn't link on its own. Poor compiler.
@@ -980,12 +981,122 @@ TEST(HasChordTest, TestAllCyclesOnK4OnlyCyclesWith4VerticesShouldHaveAChord) {
 	}
 }
 
-TEST(HasChordTest, TestSomeCyclesInArbitraryGraph) {
+TEST(HasChordTest, TestSomeCyclesInArbitraryGraphWithFourVertices) {
 	Graph sample_graph{ AdjList{{1,2}, {0,2,3}, {0,1,3}, {1,2}} };
-	EXPECT_TRUE(sample_graph.HasChord(DynamicArray<Vertex>{0, 1, 2, 3}));
-	EXPECT_TRUE(sample_graph.HasChord(DynamicArray<Vertex>{1, 2, 3, 0}));
-	EXPECT_TRUE(sample_graph.HasChord(DynamicArray<Vertex>{2, 3, 0, 1}));
-	EXPECT_TRUE(sample_graph.HasChord(DynamicArray<Vertex>{3, 0, 1, 2}));
+	EXPECT_TRUE(sample_graph.IsSimpleGraph()) << "Sample graph is not simple";
+	DynamicArray<DynamicArray<Vertex>> cycles = Graph::AllPermutations(4);
+
+
+	//list out all of the generated cycles
+	
+	//std::cout << std::endl << "size: " << cycles.Size();
+	//std::cout << "List of cycles:" << std::endl;
+	//int count = 0;
+	//for (const auto& cycle : cycles) {
+	//	std::cout << "cycle number " << std::setw(4) << count << ": ";
+	//	std::cout << "|" << Graph::VertexListToString(cycle) << "|\n";
+	//	++count;
+	//}
+
+
+	std::unordered_set<std::string> permutations_with_chords;
+
+	//valid cycles with all vertices
+	permutations_with_chords.insert("0 1 3 2");
+	permutations_with_chords.insert("1 3 2 0");
+	permutations_with_chords.insert("3 2 0 1");
+	permutations_with_chords.insert("2 0 1 3");
+	//other direction
+	permutations_with_chords.insert("0 2 3 1");
+	permutations_with_chords.insert("2 3 1 0");
+	permutations_with_chords.insert("3 1 0 2");
+	permutations_with_chords.insert("1 0 2 3");
+
+
+	for (const auto& cycle : cycles) {
+		if (permutations_with_chords.contains(Graph::VertexListToString(cycle)))
+		{
+			EXPECT_TRUE(sample_graph.HasChord(cycle));
+			//std::cout << "true " << Graph::VertexListToString(cycle) << std::endl;
+
+		}
+		else {
+			EXPECT_FALSE(sample_graph.HasChord(cycle));
+			//std::cout << "false " << Graph::VertexListToString(cycle) << std::endl;
+
+		}
+	}
+}
+
+TEST(HasChordTest, TestSomeCyclesInArbitraryGraphWithFiveVertices) {
+	Graph sample_graph{ AdjList{{1,2,3}, {0,3,4}, {0,3}, {0,1,2,4}, {1,3}} };
+	EXPECT_TRUE(sample_graph.IsSimpleGraph()) << "Sample graph is not simple";
+	DynamicArray<DynamicArray<Vertex>> cycles = Graph::AllPermutations(5);
+
+
+	//list out all of the generated cycles
+	
+	//std::cout << std::endl << "size: " << cycles.Size();
+	//std::cout << "List of cycles:" << std::endl;
+	//int count = 0;
+	//for (const auto& cycle : cycles) {
+	//	std::cout << "cycle number " << std::setw(4) << count << ": ";
+	//	std::cout << "|" << Graph::VertexListToString(cycle) << "|\n";
+	//	++count;
+	//}
+
+
+	std::unordered_set<std::string> permutations_with_chords;
+
+	//valid cycles with all vertices
+	permutations_with_chords.insert("0 1 4 3 2");
+	permutations_with_chords.insert("1 4 3 2 0");
+	permutations_with_chords.insert("4 3 2 0 1");
+	permutations_with_chords.insert("3 2 0 1 4");
+	permutations_with_chords.insert("2 0 1 4 3");
+	//other direction
+	permutations_with_chords.insert("0 2 3 4 1");
+	permutations_with_chords.insert("2 3 4 1 0");
+	permutations_with_chords.insert("3 4 1 0 2");
+	permutations_with_chords.insert("4 1 0 2 3");
+	permutations_with_chords.insert("1 0 2 3 4");
+
+
+	//cycles excluding vertex #2
+	permutations_with_chords.insert("0 1 4 3");
+	permutations_with_chords.insert("1 4 3 0");
+	permutations_with_chords.insert("4 3 0 1");
+	permutations_with_chords.insert("3 0 1 4");
+	//other direction
+	permutations_with_chords.insert("0 3 4 1");
+	permutations_with_chords.insert("3 4 1 0");
+	permutations_with_chords.insert("4 1 0 3");
+	permutations_with_chords.insert("1 0 3 4");
+
+	//cycles excluding vertex #4
+	permutations_with_chords.insert("0 1 3 2");
+	permutations_with_chords.insert("1 3 2 0");
+	permutations_with_chords.insert("3 2 0 1");
+	permutations_with_chords.insert("2 0 1 3");
+	//other direction
+	permutations_with_chords.insert("0 2 3 1");
+	permutations_with_chords.insert("2 3 1 0");
+	permutations_with_chords.insert("3 1 0 2");
+	permutations_with_chords.insert("1 0 2 3");
+
+	for (const auto& cycle : cycles) {
+		if (permutations_with_chords.contains(Graph::VertexListToString(cycle)))
+		{
+			EXPECT_TRUE(sample_graph.HasChord(cycle));
+			//std::cout << "true " << Graph::VertexListToString(cycle) << std::endl;
+			
+		}
+		else {
+			EXPECT_FALSE(sample_graph.HasChord(cycle));
+			//std::cout << "false " << Graph::VertexListToString(cycle) << std::endl;
+
+		}
+	}
 }
 
 
@@ -1045,4 +1156,237 @@ TEST(IsValidDirectionalCycleTest, CheckValidCycleExpectFalse)
     Graph graph{ AdjList{ {1,2},{0,2,3},{0,1,3},{1,2} } };
 
     EXPECT_FALSE(graph.IsValidDirectionalCycle(direction));
+}
+
+
+
+
+
+TEST(AllPermutationsTest, PermutationsWith0Choices) {
+
+	const int num_choices = 0;
+	DynamicArray<DynamicArray<Vertex>> permutations = Graph::AllPermutations(num_choices);
+	EXPECT_EQ(permutations.Size(), 1);
+
+	std::unordered_set<std::string> permutation_set;
+	for (const auto& permutation : permutations) {
+
+		//make sure that the permutation is unique
+		EXPECT_FALSE(permutation_set.contains(Graph::VertexListToString(permutation)));
+		permutation_set.insert(Graph::VertexListToString(permutation));
+
+		//make sure that all elements in the permutation are unique and within range of [0, num_choices)  (in the sole permutation here there are no elements)
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : permutation) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+		
+	}
+}
+
+TEST(AllPermutationsTest, PermutationsWith1Choice) {
+
+	const int num_choices = 1;
+	DynamicArray<DynamicArray<Vertex>> permutations = Graph::AllPermutations(num_choices);
+	EXPECT_EQ(permutations.Size(), 2);
+
+	std::unordered_set<std::string> permutation_set;
+	for (const auto& permutation : permutations) {
+
+		//make sure that the permutation is unique
+		EXPECT_FALSE(permutation_set.contains(Graph::VertexListToString(permutation)));
+		permutation_set.insert(Graph::VertexListToString(permutation));
+
+		////make sure that all elements in the permutation are unique and within range of [0, num_choices)
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : permutation) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+
+	}
+}
+
+TEST(AllPermutationsTest, PermutationsWith2Choices) {
+
+	const int num_choices = 2;
+	DynamicArray<DynamicArray<Vertex>> permutations = Graph::AllPermutations(num_choices);
+	EXPECT_EQ(permutations.Size(), 5);
+
+	std::unordered_set<std::string> permutation_set;
+	for (const auto& permutation : permutations) {
+
+		////make sure that the permutation is unique
+		EXPECT_FALSE(permutation_set.contains(Graph::VertexListToString(permutation)));
+		permutation_set.insert(Graph::VertexListToString(permutation));
+
+		//make sure that all elements in the permutation are unique and within range of [0, num_choices) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : permutation) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllPermutationsTest, PermutationsWith3Choices) {
+
+	const int num_choices = 3;
+	DynamicArray<DynamicArray<Vertex>> permutations = Graph::AllPermutations(num_choices);
+	EXPECT_EQ(permutations.Size(), 16);
+
+	std::unordered_set<std::string> permutation_set;
+	for (const auto& permutation : permutations) {
+
+		////make sure that the permutation is unique
+		EXPECT_FALSE(permutation_set.contains(Graph::VertexListToString(permutation)));
+		permutation_set.insert(Graph::VertexListToString(permutation));
+
+		//make sure that all elements in the permutation are unique and within range of [0, num_choices) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : permutation) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+
+
+
+TEST(AllCombinationsTest, CombinationsWith0Choices) {
+
+	const int num_choices = 0;
+	DynamicArray<DynamicArray<Vertex>> combinations = Graph::AllCombinations(num_choices);
+	EXPECT_EQ(combinations.Size(), 1);
+
+	std::unordered_set<std::string> combination_set;
+	for (const auto& combination : combinations) {
+
+		//make sure that the permutation is unique
+		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
+		combination_set.insert(Graph::VertexListToString(combination));
+
+		//make sure that all elements in the permutation are unique and within range of [0, num_choices)  (in the sole permutation here there are no elements)
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : combination) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+
+	}
+}
+
+TEST(AllCombinationsTest, CombinationsWith1Choice) {
+
+	const int num_choices = 1;
+	DynamicArray<DynamicArray<Vertex>> combinations = Graph::AllCombinations(num_choices);
+	EXPECT_EQ(combinations.Size(), 2);
+
+	std::cout << "AAAHAHAHA???" << std::endl;
+
+	std::unordered_set<std::string> combination_set;
+	for (const auto& combination : combinations) {
+
+		//make sure that the permutation is unique
+		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
+		combination_set.insert(Graph::VertexListToString(combination));
+
+		////make sure that all elements in the permutation are unique and within range of [0, num_choices)
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : combination) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+
+	}
+}
+
+TEST(AllCombinationsTest, CombinationsWith2Choices) {
+
+	const int num_choices = 2;
+	DynamicArray<DynamicArray<Vertex>> combinations = Graph::AllCombinations(num_choices);
+	EXPECT_EQ(combinations.Size(), 4);
+
+	std::unordered_set<std::string> combination_set;
+	for (const auto& combination : combinations) {
+
+		////make sure that the permutation is unique
+		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
+		combination_set.insert(Graph::VertexListToString(combination));
+
+		//make sure that all elements in the permutation are unique and within range of [0, num_choices) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : combination) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllCombinationsTest, CombinationsWith3Choices) {
+
+	const int num_choices = 3;
+	DynamicArray<DynamicArray<Vertex>> combinations = Graph::AllCombinations(num_choices);
+	EXPECT_EQ(combinations.Size(), 8);
+
+	std::unordered_set<std::string> combination_set;
+	for (const auto& combination : combinations) {
+
+		////make sure that the permutation is unique
+		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
+		combination_set.insert(Graph::VertexListToString(combination));
+
+		//make sure that all elements in the permutation are unique and within range of [0, num_choices) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : combination) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+
+
+
+
+
+
+TEST(VertexListToStringTest, EmptyDynamicArrayShouldGiveEmptyString) {
+	
+	DynamicArray<Vertex> arr{};
+	
+	const std::string expected_output = "";
+	const std::string actual_output = Graph::VertexListToString(arr);
+
+	EXPECT_EQ(expected_output, actual_output);
+}
+
+TEST(VertexListToStringTest, DynamicArrayWithOneElementShouldGiveStringWithJustElement) {
+
+	DynamicArray<Vertex> arr{2};
+
+	const std::string expected_output = "2";
+	const std::string actual_output = Graph::VertexListToString(arr);
+
+	EXPECT_EQ(expected_output, actual_output);
+}
+
+TEST(VertexListToStringTest, DynamicArrayWithMultipleElementsShouldListOutAllElements) {
+
+	DynamicArray<Vertex> arr{ 1,2,4,8,16 };
+
+	const std::string expected_output = "1 2 4 8 16";
+	const std::string actual_output = Graph::VertexListToString(arr);
+
+	EXPECT_EQ(expected_output, actual_output);
 }
