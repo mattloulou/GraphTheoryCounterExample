@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <unordered_set>
+#include <queue>
 
 ///conastructor using an Adjacency List
 Graph::Graph(AdjList other_adj_list) : adj_list_{ std::move(other_adj_list) }
@@ -186,12 +187,47 @@ void Graph::ClearGraph()
     adj_list_.Clear();
 }
 
+//BIDIRECTIONAL ONLY. checks if the graph is connected. 
+bool Graph::IsConnected() const
+{
+    assert(IsSimpleGraph());
+
+    std::unordered_set<Vertex> traversed;
+
+    //this implementation assumes graphs with 0 vertices are connected. Idk if this is standard?
+    if (VertexCount() == 0) return true;
+
+    //begin with vertex 0 and try traversing through the graph until we reach all vertices or can't reach all.
+    traversed.insert(0); 
+    std::queue<Vertex> queue;
+    queue.push(0);
+
+    //keep traversing through
+    while (traversed.size() < VertexCount() && !queue.empty()) { 
+        
+        int target_vertex = queue.front();
+        queue.pop();
+
+        for (const auto& v : adj_list_[target_vertex]) {
+            if (!traversed.contains(v)) {
+                queue.push(v);
+            }
+            traversed.insert(v);
+        }
+    }
+
+    if (traversed.size() == VertexCount()) return true;
+    return false;
+}
+
 ///checks if the graph is K-vertex connected
 bool Graph::IsKVertexConnected(int k) const
 {
+    //there must be more than k vertices, and since to be k-vertex-connected the Graph must remain connected whenever fewer than k vertices are removed, 
+    //if k <= 0, then we will remove <0 vertices which makes no sense.
+    assert(VertexCount() > k && k > 0);
     return 1;
 }
-
 
 ///prints the graph using a given width for each node-number.
 void Graph::PrintGraph(int width) const

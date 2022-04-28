@@ -857,6 +857,7 @@ TEST(ClearEdgesTest, ClearEdgesAllAtOnceForK4)
 
 
 
+
 TEST(ClearGraphTest, UseClearGraphOnK4ResultsInNullGraph) {
 	Graph K4{ Graph::K_4 };
 	std::string expected_output =
@@ -892,6 +893,52 @@ TEST(ClearGraphTest, UseClearGraphOnK4ResultsInNullGraph) {
 		"Graph should pass all assertions, and thus the function call returns true";
 }
 
+
+
+
+
+TEST(IsConnectedTest, NullGraphIsConnectedExpectsTrue) {
+	Graph g{};
+	EXPECT_TRUE(g.IsConnected());
+}
+
+TEST(IsConnectedTest, GraphWithOneVertexIsConnectedExpectsTrue) {
+	Graph g{ 1 };
+	EXPECT_TRUE(g.IsConnected());
+}
+
+TEST(IsConnectedTest, GraphWithTwoVerticesWithAnEdgeIsConnectedExpectsTrue) {
+	Graph g{ AdjList{{1}, {0}} };
+	EXPECT_TRUE(g.IsConnected());
+}
+
+TEST(IsConnectedTest, K4IsConnectedExpectsTrue) {
+	Graph g = Graph::K_4;
+	EXPECT_TRUE(g.IsConnected());
+}
+
+TEST(IsConnectedTest, GraphWithTwoVerticesButNoEdgesIsConnectedExpectsFalse) {
+	Graph g{ 2 };
+	EXPECT_FALSE(g.IsConnected());
+}
+
+TEST(IsConnectedTest, GraphWith100VerticesButNoEdgesIsConnectedExpectsFalse) {
+	Graph g{ 100 };
+	EXPECT_FALSE(g.IsConnected());
+}
+
+TEST(IsConnectedTest, GraphWithFourVerticesButOneVertexHasNoEdgesIsConnectedExpectsFalse) {
+	Graph g = Graph::K_4;
+	g.ClearEdges(0);
+	EXPECT_FALSE(g.IsConnected());
+}
+
+TEST(IsConnectedTest, GraphWithFourVerticesButOneVertexHasOneEdgesIsConnectedExpectsTrue) {
+	Graph g = Graph::K_4;
+	g.ClearEdges(0);
+	g.AddEdge(0, 3);
+	EXPECT_TRUE(g.IsConnected());
+}
 
 
 

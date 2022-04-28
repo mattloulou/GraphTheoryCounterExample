@@ -35,6 +35,7 @@ public:
 	void ClearGraph();
 	void PrintGraph(int width = 3) const; 
 
+	bool IsConnected() const;
 	bool IsKVertexConnected(int k) const; 
 	bool IsSimpleGraph() const; 
 	bool HasChord(const DynamicArray<Vertex>& cycle) const;
