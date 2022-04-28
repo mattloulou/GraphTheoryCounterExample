@@ -936,8 +936,85 @@ TEST(IsConnectedTest, GraphWithFourVerticesButOneVertexHasNoEdgesIsConnectedExpe
 TEST(IsConnectedTest, GraphWithFourVerticesButOneVertexHasOneEdgesIsConnectedExpectsTrue) {
 	Graph g = Graph::K_4;
 	g.ClearEdges(0);
+	EXPECT_FALSE(g.IsConnected());
 	g.AddEdge(0, 3);
 	EXPECT_TRUE(g.IsConnected());
+}
+
+
+TEST(IsKVertexConnectedTest, GraphWithTwoVerticesIsOnlyOneConnected) {
+	Graph g{ AdjList{{1}, {0}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(1));
+
+	//these are all invalid options
+	for (int i = -10; i < 10; ++i) {
+		if (i != 1) {
+			EXPECT_DEATH(g.IsKVertexConnected(i), "");
+		}
+	}
+}
+
+TEST(IsKVertexConnectedTest, K4IsOnly1And2And3VertexConnected) {
+	Graph g = Graph::K_4;
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(1));
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_TRUE(g.IsKVertexConnected(3));
+
+	for (int i = -10; i < 10; ++i) {
+		if (i < 1 || i > 3) {
+			EXPECT_DEATH(g.IsKVertexConnected(i), "");
+		}
+	}
+}
+
+TEST(IsKVertexConnectedTest, K4WithEdgeRemovedIsOnly1And2VertexConnected) {
+	Graph g = Graph::K_4;
+	g.RemoveEdge(0, 1);
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(1));
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_FALSE(g.IsKVertexConnected(3));
+
+	for (int i = -10; i < 10; ++i) {
+		if (i < 1 || i > 3) {
+			EXPECT_DEATH(g.IsKVertexConnected(i), "");
+		}
+	}
+}
+
+TEST(IsKVertexConnectedTest, CreatedGraphIsOnly1And2And3VertexConnected) {
+	Graph g{ AdjList{{1,3,5}, {0,2,5}, {1,3,4,5}, {0,2,4}, {2,3,5}, {0,1,2,4}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(1));
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_TRUE(g.IsKVertexConnected(3));
+	EXPECT_FALSE(g.IsKVertexConnected(4));
+	EXPECT_FALSE(g.IsKVertexConnected(5));
+
+	for (int i = -10; i < 10; ++i) {
+		if (i < 1 || i > 5) {
+			EXPECT_DEATH(g.IsKVertexConnected(i), "");
+		}
+	}
+}
+
+TEST(IsKVertexConnectedTest, AnotherCreatedGraphIsOnly1And2And3VertexConnected) {
+	Graph g{ AdjList{{1,2,3}, {3,0,2,5}, {0,1,6,4}, {0,1,6,4}, {3,2,6,5}, {1,4,6}, {4,3,5,2}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(1));
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_TRUE(g.IsKVertexConnected(3));
+	EXPECT_FALSE(g.IsKVertexConnected(4));
+	EXPECT_FALSE(g.IsKVertexConnected(5));
+	EXPECT_FALSE(g.IsKVertexConnected(6));
+
+	for (int i = -10; i < 10; ++i) {
+		if (i < 1 || i > 6) {
+			EXPECT_DEATH(g.IsKVertexConnected(i), "");
+		}
+	}
 }
 
 
@@ -1208,6 +1285,45 @@ TEST(IsValidDirectionalCycleTest, CheckValidCycleExpectFalse)
 
 
 
+TEST(DoAllLargestCyclesHaveAChordTest, K4DoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g = Graph::K_4;
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(3));
+	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChord());
+}
+
+TEST(DoAllLargestCyclesHaveAChordTest, SquareGraphWithDiagonalDoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g{ AdjList{{1,2,3}, {0,3}, {0,3}, {0,1,2}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChord());
+}
+
+TEST(DoAllLargestCyclesHaveAChordTest, SquareGraphWithNoDiagonalDoAllLargestCyclesHaveAChordExpectsFalse) {
+	Graph g{ AdjList{{1,2}, {0,3}, {0,3}, {1,2}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChord());
+}
+
+TEST(DoAllLargestCyclesHaveAChordTest, GraphWithNoCyclesDoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g{ AdjList{{1}, {0,3}, {3}, {1,2}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(1));
+	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChord());
+}
+
+TEST(DoAllLargestCyclesHaveAChordTest, GraphWithMultipleCyclesButLargestHaveNoChordsDoAllLargestCyclesHaveAChordExpectsFalse) {
+	Graph g{ AdjList{{1,5}, {0,3}, {3,6,7}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(1));
+	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChord());
+}
+
+
+
+
+
 
 TEST(AllPermutationsTest, PermutationsWith0Choices) {
 
@@ -1306,6 +1422,201 @@ TEST(AllPermutationsTest, PermutationsWith3Choices) {
 
 
 
+TEST(AllPermutationsWithMaxSizeTest, PermutationsWith0Choices0MaxSizeExpectsSameResultAsWithoutGivingAMaxSize) {
+
+	const int num_choices = 0;
+	const int max_size = 0;
+	DynamicArray<DynamicArray<Vertex>> permutations = Graph::AllPermutations(num_choices, max_size);
+	EXPECT_EQ(permutations.Size(), 1);
+
+	std::unordered_set<std::string> permutation_set;
+	for (const auto& permutation : permutations) {
+
+		//make sure that the permutation is unique
+		EXPECT_FALSE(permutation_set.contains(Graph::VertexListToString(permutation)));
+		permutation_set.insert(Graph::VertexListToString(permutation));
+
+		//make sure that all elements in the permutation are unique and within range of [0, num_choices)  (in the sole permutation here there are no elements)
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : permutation) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+
+	}
+}
+
+TEST(AllPermutationsWithMaxSizeTest, PermutationsWith1Choice1MaxSizeExpectsSameResultAsWithoutGivingAMaxSize) {
+
+	const int num_choices = 1;
+	const int max_size = 1;
+	DynamicArray<DynamicArray<Vertex>> permutations = Graph::AllPermutations(num_choices, max_size);
+	EXPECT_EQ(permutations.Size(), 2);
+
+	std::unordered_set<std::string> permutation_set;
+	for (const auto& permutation : permutations) {
+
+		//make sure that the permutation is unique
+		EXPECT_FALSE(permutation_set.contains(Graph::VertexListToString(permutation)));
+		permutation_set.insert(Graph::VertexListToString(permutation));
+
+		////make sure that all elements in the permutation are unique and within range of [0, num_choices)
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : permutation) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+
+	}
+}
+
+TEST(AllPermutationsWithMaxSizeTest, PermutationsWith2Choices2MaxSizeExpectsSameResultAsWithoutGivingAMaxSize) {
+
+	const int num_choices = 2;
+	const int max_size = 2;
+	DynamicArray<DynamicArray<Vertex>> permutations = Graph::AllPermutations(num_choices, max_size);
+	EXPECT_EQ(permutations.Size(), 5);
+
+	std::unordered_set<std::string> permutation_set;
+	for (const auto& permutation : permutations) {
+
+		////make sure that the permutation is unique
+		EXPECT_FALSE(permutation_set.contains(Graph::VertexListToString(permutation)));
+		permutation_set.insert(Graph::VertexListToString(permutation));
+
+		//make sure that all elements in the permutation are unique and within range of [0, num_choices) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : permutation) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllPermutationsWithMaxSizeTest, PermutationsWith3Choices3MaxSizeExpectsSameResultAsWithoutGivingAMaxSize) {
+
+	const int num_choices = 3;
+	const int max_size = 3;
+	DynamicArray<DynamicArray<Vertex>> permutations = Graph::AllPermutations(num_choices, max_size);
+	EXPECT_EQ(permutations.Size(), 16);
+
+	std::unordered_set<std::string> permutation_set;
+	for (const auto& permutation : permutations) {
+
+		////make sure that the permutation is unique
+		EXPECT_FALSE(permutation_set.contains(Graph::VertexListToString(permutation)));
+		permutation_set.insert(Graph::VertexListToString(permutation));
+
+		//make sure that all elements in the permutation are unique and within range of [0, num_choices) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : permutation) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllPermutationsWithMaxSizeTest, PermutationsWith3Choices2MaxSize) {
+
+	const int num_choices = 3;
+	const int max_size = 2;
+	DynamicArray<DynamicArray<Vertex>> permutations = Graph::AllPermutations(num_choices, max_size);
+	EXPECT_EQ(permutations.Size(), 10);
+
+	std::unordered_set<std::string> permutation_set;
+	for (const auto& permutation : permutations) {
+
+		////make sure that the permutation is unique
+		EXPECT_FALSE(permutation_set.contains(Graph::VertexListToString(permutation)));
+		permutation_set.insert(Graph::VertexListToString(permutation));
+
+		//make sure that all elements in the permutation are unique and within range of [0, max_size) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : permutation) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllPermutationsWithMaxSizeTest, PermutationsWith4Choices1MaxSize) {
+
+	const int num_choices = 4;
+	const int max_size = 1;
+	DynamicArray<DynamicArray<Vertex>> permutations = Graph::AllPermutations(num_choices, max_size);
+	EXPECT_EQ(permutations.Size(), 5);
+
+	std::unordered_set<std::string> permutation_set;
+	for (const auto& permutation : permutations) {
+
+		////make sure that the permutation is unique
+		EXPECT_FALSE(permutation_set.contains(Graph::VertexListToString(permutation)));
+		permutation_set.insert(Graph::VertexListToString(permutation));
+
+		//make sure that all elements in the permutation are unique and within range of [0, max_size) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : permutation) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllPermutationsWithMaxSizeTest, PermutationsWith10Choices0MaxSize) {
+
+	const int num_choices = 10;
+	const int max_size = 0;
+	DynamicArray<DynamicArray<Vertex>> permutations = Graph::AllPermutations(num_choices, max_size);
+	EXPECT_EQ(permutations.Size(), 1);
+
+	std::unordered_set<std::string> permutation_set;
+	for (const auto& permutation : permutations) {
+
+		////make sure that the permutation is unique
+		EXPECT_FALSE(permutation_set.contains(Graph::VertexListToString(permutation)));
+		permutation_set.insert(Graph::VertexListToString(permutation));
+
+		//make sure that all elements in the permutation are unique and within range of [0, max_size) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : permutation) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllPermutationsWithMaxSizeTest, PermutationsWith0Choices2MaxSizeExpectsDeath) {
+
+	const int num_choices = 0;
+	const int max_size = 2;
+	EXPECT_DEATH(Graph::AllPermutations(num_choices, max_size), "");
+}
+
+TEST(AllPermutationsWithMaxSizeTest, PermutationsWith5Choices7MaxSizeExpectsDeath) {
+
+	const int num_choices = 5;
+	const int max_size = 7;
+	EXPECT_DEATH(Graph::AllPermutations(num_choices, max_size), "");
+}
+
+TEST(AllPermutationsWithMaxSizeTest, PermutationsWith5ChoicesNegative1MaxSizeExpectsDeath) {
+
+	const int num_choices = 5;
+	const int max_size = -1;
+	EXPECT_DEATH(Graph::AllPermutations(num_choices, max_size), "");
+}
+
+
+
+
+
 TEST(AllCombinationsTest, CombinationsWith0Choices) {
 
 	const int num_choices = 0;
@@ -1315,11 +1626,11 @@ TEST(AllCombinationsTest, CombinationsWith0Choices) {
 	std::unordered_set<std::string> combination_set;
 	for (const auto& combination : combinations) {
 
-		//make sure that the permutation is unique
+		//make sure that the combination is unique
 		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
 		combination_set.insert(Graph::VertexListToString(combination));
 
-		//make sure that all elements in the permutation are unique and within range of [0, num_choices)  (in the sole permutation here there are no elements)
+		//make sure that all elements in the combination are unique and within range of [0, num_choices)  (in the sole combination here there are no elements)
 		std::unordered_set<Vertex> vertices;
 		for (const auto& v : combination) {
 			EXPECT_FALSE(vertices.contains(v));
@@ -1336,16 +1647,14 @@ TEST(AllCombinationsTest, CombinationsWith1Choice) {
 	DynamicArray<DynamicArray<Vertex>> combinations = Graph::AllCombinations(num_choices);
 	EXPECT_EQ(combinations.Size(), 2);
 
-	std::cout << "AAAHAHAHA???" << std::endl;
-
 	std::unordered_set<std::string> combination_set;
 	for (const auto& combination : combinations) {
 
-		//make sure that the permutation is unique
+		//make sure that the combination is unique
 		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
 		combination_set.insert(Graph::VertexListToString(combination));
 
-		////make sure that all elements in the permutation are unique and within range of [0, num_choices)
+		////make sure that all elements in the combination are unique and within range of [0, num_choices)
 		std::unordered_set<Vertex> vertices;
 		for (const auto& v : combination) {
 			EXPECT_FALSE(vertices.contains(v));
@@ -1365,11 +1674,11 @@ TEST(AllCombinationsTest, CombinationsWith2Choices) {
 	std::unordered_set<std::string> combination_set;
 	for (const auto& combination : combinations) {
 
-		////make sure that the permutation is unique
+		////make sure that the combination is unique
 		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
 		combination_set.insert(Graph::VertexListToString(combination));
 
-		//make sure that all elements in the permutation are unique and within range of [0, num_choices) 
+		//make sure that all elements in the combination are unique and within range of [0, num_choices) 
 		std::unordered_set<Vertex> vertices;
 		for (const auto& v : combination) {
 			EXPECT_FALSE(vertices.contains(v));
@@ -1388,11 +1697,11 @@ TEST(AllCombinationsTest, CombinationsWith3Choices) {
 	std::unordered_set<std::string> combination_set;
 	for (const auto& combination : combinations) {
 
-		////make sure that the permutation is unique
+		////make sure that the combination is unique
 		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
 		combination_set.insert(Graph::VertexListToString(combination));
 
-		//make sure that all elements in the permutation are unique and within range of [0, num_choices) 
+		//make sure that all elements in the combination are unique and within range of [0, num_choices) 
 		std::unordered_set<Vertex> vertices;
 		for (const auto& v : combination) {
 			EXPECT_FALSE(vertices.contains(v));
@@ -1404,6 +1713,218 @@ TEST(AllCombinationsTest, CombinationsWith3Choices) {
 
 
 
+TEST(AllCombinationsWithMaxSizeTest, CombinationsWith0Choices0MaxSizeExpectsSameResultAsWithoutGivingAMaxSize) {
+
+	const int num_choices = 0;
+	const int max_size = 0;
+	DynamicArray<DynamicArray<Vertex>> combinations = Graph::AllCombinations(num_choices, max_size);
+	EXPECT_EQ(combinations.Size(), 1);
+
+	std::unordered_set<std::string> combination_set;
+	for (const auto& combination : combinations) {
+
+		////make sure that the combination is unique
+		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
+		combination_set.insert(Graph::VertexListToString(combination));
+
+		//make sure that all elements in the combination are unique and within range of [0, num_choices) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : combination) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllCombinationsWithMaxSizeTest, CombinationsWith1Choice1MaxSizeExpectsSameResultAsWithoutGivingAMaxSize) {
+
+	const int num_choices = 1;
+	const int max_size = 1;
+	DynamicArray<DynamicArray<Vertex>> combinations = Graph::AllCombinations(num_choices, max_size);
+	EXPECT_EQ(combinations.Size(), 2);
+
+	std::unordered_set<std::string> combination_set;
+	for (const auto& combination : combinations) {
+
+		////make sure that the combination is unique
+		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
+		combination_set.insert(Graph::VertexListToString(combination));
+
+		//make sure that all elements in the combination are unique and within range of [0, num_choices) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : combination) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllCombinationsWithMaxSizeTest, CombinationsWith2Choices2MaxSizeExpectsSameResultAsWithoutGivingAMaxSize) {
+
+	const int num_choices = 2;
+	const int max_size = 2;
+	DynamicArray<DynamicArray<Vertex>> combinations = Graph::AllCombinations(num_choices, max_size);
+	EXPECT_EQ(combinations.Size(), 4);
+
+	std::unordered_set<std::string> combination_set;
+	for (const auto& combination : combinations) {
+
+		////make sure that the combination is unique
+		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
+		combination_set.insert(Graph::VertexListToString(combination));
+
+		//make sure that all elements in the combination are unique and within range of [0, num_choices) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : combination) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllCombinationsWithMaxSizeTest, CombinationsWith3Choices3MaxSizeExpectsSameResultAsWithoutGivingAMaxSize) {
+
+	const int num_choices = 3;
+	const int max_size = 3;
+	DynamicArray<DynamicArray<Vertex>> combinations = Graph::AllCombinations(num_choices, max_size);
+	EXPECT_EQ(combinations.Size(), 8);
+
+	std::unordered_set<std::string> combination_set;
+	for (const auto& combination : combinations) {
+
+		////make sure that the combination is unique
+		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
+		combination_set.insert(Graph::VertexListToString(combination));
+
+		//make sure that all elements in the combination are unique and within range of [0, num_choices) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : combination) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllCombinationsWithMaxSizeTest, CombinationsWith3Choices2MaxSize) {
+
+	const int num_choices = 3;
+	const int max_size = 2;
+	DynamicArray<DynamicArray<Vertex>> combinations = Graph::AllCombinations(num_choices, max_size);
+	EXPECT_EQ(combinations.Size(), 7);
+
+	std::unordered_set<std::string> combination_set;
+	for (const auto& combination : combinations) {
+
+		////make sure that the combination is unique
+		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
+		combination_set.insert(Graph::VertexListToString(combination));
+
+		//make sure that all elements in the combination are unique and within range of [0, max_size) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : combination) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllCombinationsWithMaxSizeTest, CombinationsWith4Choices1MaxSize) {
+
+	const int num_choices = 4;
+	const int max_size = 1;
+	DynamicArray<DynamicArray<Vertex>> combinations = Graph::AllCombinations(num_choices, max_size);
+	EXPECT_EQ(combinations.Size(), 5);
+
+	std::unordered_set<std::string> combination_set;
+	for (const auto& combination : combinations) {
+
+		////make sure that the combination is unique
+		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
+		combination_set.insert(Graph::VertexListToString(combination));
+
+		//make sure that all elements in the combination are unique and within range of [0, max_size) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : combination) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllCombinationsWithMaxSizeTest, CombinationsWith10Choices0MaxSize) {
+
+	const int num_choices = 10;
+	const int max_size = 0;
+	DynamicArray<DynamicArray<Vertex>> combinations = Graph::AllCombinations(num_choices, max_size);
+	EXPECT_EQ(combinations.Size(), 1);
+
+	std::unordered_set<std::string> combination_set;
+	for (const auto& combination : combinations) {
+
+		////make sure that the combination is unique
+		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
+		combination_set.insert(Graph::VertexListToString(combination));
+
+		//make sure that all elements in the combination are unique and within range of [0, max_size) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : combination) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllCombinationsWithMaxSizeTest, CombinationsWith4Choices3MaxSize) {
+
+	const int num_choices = 4;
+	const int max_size = 3;
+	DynamicArray<DynamicArray<Vertex>> combinations = Graph::AllCombinations(num_choices, max_size);
+	EXPECT_EQ(combinations.Size(), 15);
+
+	std::unordered_set<std::string> combination_set;
+	for (const auto& combination : combinations) {
+
+		////make sure that the combination is unique
+		EXPECT_FALSE(combination_set.contains(Graph::VertexListToString(combination)));
+		combination_set.insert(Graph::VertexListToString(combination));
+
+		//make sure that all elements in the combination are unique and within range of [0, max_size) 
+		std::unordered_set<Vertex> vertices;
+		for (const auto& v : combination) {
+			EXPECT_FALSE(vertices.contains(v));
+			vertices.insert(v);
+			EXPECT_TRUE(0 <= v && v < num_choices);
+		}
+	}
+}
+
+TEST(AllCombinationsWithMaxSizeTest, CombinationsWith0Choices2MaxSizeExpectsDeath) {
+
+	const int num_choices = 0;
+	const int max_size = 2;
+	EXPECT_DEATH(Graph::AllCombinations(num_choices, max_size), "");
+}
+
+TEST(AllCombinationsWithMaxSizeTest, CombinationsWith5Choices7MaxSizeExpectsDeath) {
+
+	const int num_choices = 5;
+	const int max_size = 7;
+	EXPECT_DEATH(Graph::AllCombinations(num_choices, max_size), "");
+}
+
+TEST(AllCombinationsWithMaxSizeTest, CombinationsWith5ChoicesNegative1MaxSizeExpectsDeath) {
+
+	const int num_choices = 5;
+	const int max_size = -1;
+	EXPECT_DEATH(Graph::AllCombinations(num_choices, max_size), "");
+}
 
 
 

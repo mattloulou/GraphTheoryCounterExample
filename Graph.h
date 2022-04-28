@@ -35,17 +35,20 @@ public:
 	void ClearGraph();
 	void PrintGraph(int width = 3) const; 
 
-	bool IsConnected() const;
+	bool IsConnected(const DynamicArray<Vertex>& vertex_exclustion_list = DynamicArray<Vertex>{}) const;
 	bool IsKVertexConnected(int k) const; 
 	bool IsSimpleGraph() const; 
 	bool HasChord(const DynamicArray<Vertex>& cycle) const;
 	bool IsValidDirectionalCycle(const DynamicArray<Vertex>& cycle) const;
+	bool DoAllLargestCyclesHaveAChord() const;
 
 	explicit operator std::string() const;
 
 	static const Graph K_4;
 	static DynamicArray<DynamicArray<Vertex>> AllPermutations(const int& num_choices);
+	static DynamicArray<DynamicArray<Vertex>> AllPermutations(const int& num_choices, const int& max_length);
 	static DynamicArray<DynamicArray<Vertex>> AllCombinations(const int& num_choices);
+	static DynamicArray<DynamicArray<Vertex>> AllCombinations(const int& num_choices, const int& max_length);
 	static std::string VertexListToString(const DynamicArray<Vertex>& vertex_list);
 };
 
