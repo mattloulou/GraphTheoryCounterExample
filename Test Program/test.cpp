@@ -1285,54 +1285,116 @@ TEST(IsValidDirectionalCycleTest, CheckValidCycleExpectFalse)
 
 
 
-TEST(DoAllLargestCyclesHaveAChordTest, K4DoAllLargestCyclesHaveAChordExpectsTrue) {
+//TEST(DoAllLargestCyclesHaveAChordTest, K4DoAllLargestCyclesHaveAChordExpectsTrue) {
+//	Graph g = Graph::K_4;
+//	EXPECT_TRUE(g.IsSimpleGraph());
+//	EXPECT_TRUE(g.IsKVertexConnected(3));
+//	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChord());
+//}
+//
+//TEST(DoAllLargestCyclesHaveAChordTest, SquareGraphWithDiagonalDoAllLargestCyclesHaveAChordExpectsTrue) {
+//	Graph g{ AdjList{{1,2,3}, {0,3}, {0,3}, {0,1,2}} };
+//	EXPECT_TRUE(g.IsSimpleGraph());
+//	EXPECT_TRUE(g.IsKVertexConnected(2));
+//	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChord());
+//}
+//
+//TEST(DoAllLargestCyclesHaveAChordTest, SquareGraphWithNoDiagonalDoAllLargestCyclesHaveAChordExpectsFalse) {
+//	Graph g{ AdjList{{1,2}, {0,3}, {0,3}, {1,2}} };
+//	EXPECT_TRUE(g.IsSimpleGraph());
+//	EXPECT_TRUE(g.IsKVertexConnected(2));
+//	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChord());
+//}
+//
+//TEST(DoAllLargestCyclesHaveAChordTest, GraphWithNoCyclesDoAllLargestCyclesHaveAChordExpectsTrue) {
+//	Graph g{ AdjList{{1}, {0,3}, {3}, {1,2}} };
+//	EXPECT_TRUE(g.IsSimpleGraph());
+//	EXPECT_TRUE(g.IsKVertexConnected(1));
+//	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChord());
+//}
+//
+//TEST(DoAllLargestCyclesHaveAChordTest, GraphWithMultipleCyclesButLargestHaveNoChordsDoAllLargestCyclesHaveAChordExpectsFalse) {
+//	Graph g{ AdjList{{1,5}, {0,3}, {3,6,7}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
+//	EXPECT_TRUE(g.IsSimpleGraph());
+//	EXPECT_TRUE(g.IsKVertexConnected(1));
+//	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChord());
+//}
+//
+//TEST(DoAllLargestCyclesHaveAChordTest, GraphWithMultipleCyclesAndLargestHaveChordsDoAllLargestCyclesHaveAChordExpectsTrue) {
+//	Graph g{ AdjList{{1,5}, {0,3,2}, {3,6,7,1}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
+//	EXPECT_TRUE(g.IsSimpleGraph());
+//	EXPECT_TRUE(g.IsKVertexConnected(2));
+//	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChord());
+//}
+//
+//TEST(DoAllLargestCyclesHaveAChordTest, GraphWithOneBigCycleButNoChordDoAllLargestCyclesHaveAChordExpectsFalse) {
+//	Graph g{ AdjList{{1,7}, {0,2}, {1,3}, {2,8,4}, {3,5}, {6,4}, {7,5}, {0,6,8}, {7,3}} };
+//	EXPECT_TRUE(g.IsSimpleGraph());
+//	EXPECT_TRUE(g.IsKVertexConnected(2));
+//	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChord());
+//}
+
+
+
+
+
+TEST(DoAllLargestCyclesHaveAChordV2Test, K4DoAllLargestCyclesHaveAChordExpectsTrue) {
 	Graph g = Graph::K_4;
 	EXPECT_TRUE(g.IsSimpleGraph());
 	EXPECT_TRUE(g.IsKVertexConnected(3));
-	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChord());
+	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChordV2());
 }
 
-TEST(DoAllLargestCyclesHaveAChordTest, SquareGraphWithDiagonalDoAllLargestCyclesHaveAChordExpectsTrue) {
+TEST(DoAllLargestCyclesHaveAChordV2Test, SquareGraphWithDiagonalDoAllLargestCyclesHaveAChordExpectsTrue) {
 	Graph g{ AdjList{{1,2,3}, {0,3}, {0,3}, {0,1,2}} };
 	EXPECT_TRUE(g.IsSimpleGraph());
 	EXPECT_TRUE(g.IsKVertexConnected(2));
-	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChord());
+	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChordV2());
 }
 
-TEST(DoAllLargestCyclesHaveAChordTest, SquareGraphWithNoDiagonalDoAllLargestCyclesHaveAChordExpectsFalse) {
+TEST(DoAllLargestCyclesHaveAChordV2Test, SquareGraphWithNoDiagonalDoAllLargestCyclesHaveAChordExpectsFalse) {
 	Graph g{ AdjList{{1,2}, {0,3}, {0,3}, {1,2}} };
 	EXPECT_TRUE(g.IsSimpleGraph());
 	EXPECT_TRUE(g.IsKVertexConnected(2));
-	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChord());
+	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChordV2());
 }
 
-TEST(DoAllLargestCyclesHaveAChordTest, GraphWithNoCyclesDoAllLargestCyclesHaveAChordExpectsTrue) {
+TEST(DoAllLargestCyclesHaveAChordV2Test, GraphWithNoCyclesDoAllLargestCyclesHaveAChordExpectsTrue) {
 	Graph g{ AdjList{{1}, {0,3}, {3}, {1,2}} };
 	EXPECT_TRUE(g.IsSimpleGraph());
 	EXPECT_TRUE(g.IsKVertexConnected(1));
-	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChord());
+	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChordV2());
 }
 
-TEST(DoAllLargestCyclesHaveAChordTest, GraphWithMultipleCyclesButLargestHaveNoChordsDoAllLargestCyclesHaveAChordExpectsFalse) {
+TEST(DoAllLargestCyclesHaveAChordV2Test, GraphWithMultipleCyclesButLargestHaveNoChordsDoAllLargestCyclesHaveAChordExpectsFalse) {
 	Graph g{ AdjList{{1,5}, {0,3}, {3,6,7}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
 	EXPECT_TRUE(g.IsSimpleGraph());
 	EXPECT_TRUE(g.IsKVertexConnected(1));
-	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChord());
+	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChordV2());
 }
 
-TEST(DoAllLargestCyclesHaveAChordTest, GraphWithMultipleCyclesAndLargestHaveChordsDoAllLargestCyclesHaveAChordExpectsTrue) {
+TEST(DoAllLargestCyclesHaveAChordV2Test, GraphWithMultipleCyclesAndLargestHaveChordsDoAllLargestCyclesHaveAChordExpectsTrue) {
 	Graph g{ AdjList{{1,5}, {0,3,2}, {3,6,7,1}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
 	EXPECT_TRUE(g.IsSimpleGraph());
 	EXPECT_TRUE(g.IsKVertexConnected(2));
-	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChord());
+	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChordV2());
 }
 
-TEST(DoAllLargestCyclesHaveAChordTest, GraphWithOneBigCycleButNoChordDoAllLargestCyclesHaveAChordExpectsFalse) {
+TEST(DoAllLargestCyclesHaveAChordV2Test, GraphWithOneBigCycleButNoChordDoAllLargestCyclesHaveAChordExpectsFalse) {
 	Graph g{ AdjList{{1,7}, {0,2}, {1,3}, {2,8,4}, {3,5}, {6,4}, {7,5}, {0,6,8}, {7,3}} };
 	EXPECT_TRUE(g.IsSimpleGraph());
 	EXPECT_TRUE(g.IsKVertexConnected(2));
-	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChord());
+	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChordV2());
 }
+
+
+
+
+
+
+
+
+
 
 
 

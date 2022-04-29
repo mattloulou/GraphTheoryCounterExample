@@ -412,17 +412,18 @@ bool Graph::DoAllLargestCyclesHaveAChord() const
     return true;
 }
 
-///Checks if every cycle of the largest length in this graph has a chord.
-bool Graph::DoAllLargestCyclesHaveAChord() const
+///Checks if every cycle of the largest length in this graph has a chord. This method destroys the given graph (undefined behaviour)
+bool Graph::DoAllLargestCyclesHaveAChordV2()
 {
+    Graph graph_copy{ *this };
     //this is required for this algorithm (I think)
-    assert(IsKVertexConnected(2)); 
+    assert(IsKVertexConnected(1)); 
     
     //the gist of this method is that we will begin with vertex 0, and try to find the largest cycles it is a part of.
     //Once we have done that, if there can theoretically be cycles remaining that don't involve vertex 0, we will remove that vertex and recursively follow this procedure on the resulting graph.
     //This will keep happening until we removed all vertices, and/or there can not be any theoretically longer cycles left.
 
-    int largest_cycle = 2; //default value. Can also be set to 0
+    int largest_cycle = 3; //default value. Can also be set to 0
     int vertices_left = VertexCount(); //the number of vertices that have not yet been excluded from search. This is also the theoretical maximum sized cycle that we can find left (after removing vertices)
     DynamicArray<DynamicArray<Vertex>> cycles_of_largest_length;
 
@@ -430,30 +431,53 @@ bool Graph::DoAllLargestCyclesHaveAChord() const
     //keep searching while there can theoretically be a larger cycle
     while (largest_cycle <= vertices_left) { //since largest_cycle is set to 2 by default, and that is the lower bound, it guarantees that we will never have fewer than 2 vertices left.
 
-        DynamicArray<int> index_path_taken; //this stores the indices of the current path taken
-        DynamicArray<Vertex> vertex_path_taken; //this stores the vertices of the path taken
-        std::unordered_set<Vertex> vertices_travelled; //the same as above, but in a map.
+        //setup arrays to hold info
+        int* index_path_taken = new int[vertices_left + 1] {-1};//this stores the indices of the current path taken
+        Vertex* vertex_path_taken = new Vertex[vertices_left + 1]{ -1 }; //this stores the vertices of the path taken
+        Vertex* vertices_travelled_count = new Vertex[VertexCount()]{0}; //stores the count of vertices traversed in this path for easy lookup
+        int path_index = 0;
 
         bool done_with_current_vertex = false;
         bool backtracking = false;
-        int current_vertex = VertexCount() - vertices_left;
+        Vertex current_vertex = VertexCount() - vertices_left;
 
-        vertex_path_taken.PushBack(current_vertex); //start the DynamicArray off with the virst vertex we are using.
+        //give arrays the correct default values
+        vertex_path_taken[0] = current_vertex;
+        ++vertices_travelled_count[current_vertex];
 
         while (!done_with_current_vertex) {
 
+            //make sureall indices are non-negative and check for other invariants
+            #ifdef _DEBUG
+            for (Vertex i = 0; i < VertexCount(); ++i) {
+                assert(vertices_travelled_count[i] >= 0);
+            }
+            for (Vertex i = 0; i <= path_index + 1; ++i) {
+                std::cout << "CV: " << current_vertex << " ";
+                std::cout << "VPTi: " << vertex_path_taken[i] << std::endl;
+
+                assert(current_vertex <= vertex_path_taken[i]); 
+                assert(vertex_path_taken[i] < VertexCount());
+            }
+            assert(0 <= path_index && path_index <= vertices_left);
+            #endif
+
             if (!backtracking) {
 
-                //go to the next vertex; It will always have elements in the adj_list
-                Vertex next_vertex = adj_list_[vertex_path_taken.Back()][0];
-                
-                index_path_taken.PushBack(0);
-                vertex_path_taken.PushBack(next_vertex);
+                //go to the next vertex; It will always have elements in the adj_list due to initial assertions (2-vertex-connected graph ==> all vertices have degree >= 2)
+                ++index_path_taken[path_index]; //here we increment index_path_taken[path_index] by a value so that we move onto the next vertex
+                Vertex next_vertex = adj_list_[vertex_path_taken[path_index]][index_path_taken[path_index]]; 
+                ++path_index; //indicate that we are now at the next vertex in a path we are taking
+                vertex_path_taken[path_index] = next_vertex;
+                vertices_travelled_count[next_vertex]++;
 
                 //if we have found a new cycle
                 if (next_vertex == current_vertex) {
 
-                    const int cycle_size = vertex_path_taken.Size() - 1;
+                    const int cycle_size = path_index;
+
+                    //gotta back up now and take a different path
+                    backtracking = true;
 
                     //if we found a new largest-size cycle
                     if (cycle_size > largest_cycle) {
@@ -462,51 +486,69 @@ bool Graph::DoAllLargestCyclesHaveAChord() const
                         largest_cycle = cycle_size;
                         cycles_of_largest_length.Clear();
 
-                        DynamicArray<Vertex> cycle_to_add{ vertex_path_taken };
+                        DynamicArray<Vertex> cycle_to_add{ vertex_path_taken, vertex_path_taken + cycle_size }; //might have used the wrong parameters here
                         cycle_to_add.PopBack();
                         cycles_of_largest_length.PushBack(cycle_to_add);
-
-                        //gotta back up now and take a different path
-                        backtracking = true;
                     }
 
                     //if we found a cycle of the same size as the current largest:
-                    if (cycle_size == largest_cycle) {
+                    else if (cycle_size == largest_cycle) {
                            
                         //add the new cycle found
-                        DynamicArray<Vertex> cycle_to_add{ vertex_path_taken };
+                        DynamicArray<Vertex> cycle_to_add{ vertex_path_taken, vertex_path_taken + cycle_size }; //might have used the wrong parameters here
                         cycle_to_add.PopBack();
                         cycles_of_largest_length.PushBack(cycle_to_add);
-
-                        //gotta back up now and take a different path
-                        backtracking = true;
                     }
 
-
                 }
 
-                //if we return to a previous vertex already visited in this path
-                else if (vertices_travelled.contains(next_vertex)) {
+                //if we return to a previous vertex already visited in this path (kinda like the shape of the letter 'p') 
+                else if (vertices_travelled_count[next_vertex] > 1) {
                     backtracking = true;
+                }            
+            } 
+            
+            //backtracking: we want to back up until we can continue traversing
+            if (backtracking) {
+
+                //Case where we are finished. If we are on the last branch extending from current_vertex (does not have to be traversed 
+                //because any cycle coming from it wold have to end up using another edge connected to current_vertex, which would already have been checked).
+                assert(path_index >= 0);
+                if (index_path_taken[0] == adj_list_[vertex_path_taken[0]].Size() - 1) {
+                    done_with_current_vertex = true;
                 }
 
+                //back up / backtrack
+                index_path_taken[path_index] = -1; //reset the index value here since the path no longer connects through this vertex.
+                --vertices_travelled_count[vertex_path_taken[path_index]];
+                --path_index;
 
-
-                else {
-                    vertices_travelled.insert(next_vertex);
+                //this means we are not at a dead end in this vertex, and can stop backtracking
+                if (adj_list_[vertex_path_taken[path_index]].Size() - 1 != index_path_taken[path_index]) {
+                    backtracking = false;
                 }
-
-
-
-
-            //backtracking:
-            } else {
-
             }
             
 
         }
+
+        delete[] index_path_taken;
+        delete[] vertex_path_taken;
+        delete[] vertices_travelled_count;
+
+        //remove the current_vertex and continue the search
+        ClearEdges(current_vertex); 
+        --vertices_left;
+        
+
     }
+
+    //now that we have found all largest cycles, we must check if they all have chords.
+    for (const auto& cycle : cycles_of_largest_length) {
+        VertexListToString(cycle);
+        if (!graph_copy.HasChord(cycle)) return false; //a longest cycle does not have a chord!
+    }
+    return true;
 
 }
 

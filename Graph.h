@@ -41,7 +41,7 @@ public:
 	bool HasChord(const DynamicArray<Vertex>& cycle) const;
 	bool IsValidDirectionalCycle(const DynamicArray<Vertex>& cycle) const;
 	bool DoAllLargestCyclesHaveAChord() const;
-	bool DoAllLargestCyclesHaveAChordV2() const;
+	bool DoAllLargestCyclesHaveAChordV2(); //WARNING: this method destroys a given graph. Use it on copies only to be safe
 
 	explicit operator std::string() const;
 
