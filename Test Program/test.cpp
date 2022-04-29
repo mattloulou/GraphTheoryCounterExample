@@ -51,7 +51,7 @@ TEST(DynamicArrayCopyCtor, FilledWithCopyConstructor)
 /////////////////////////////   Graph Tests   /////////////////////////////
 
 TEST(IsSimpleGraph, DegreeOneSelfLoopGraphExpectsNotSimpleGraph) {
-	Graph two_vertex_graph{ AdjList{ {0}, {1} } };
+	Graph two_vertex_graph{ AdjList{ DynamicArray<Vertex>{0}, DynamicArray<Vertex>{1} } };
 	const std::string expected_output =
 		"0:  0\n" //self-loop here
 		"1:  1\n";//self-loop here
@@ -280,7 +280,17 @@ TEST(GraphCtorForVertexCountTest, NegativeVertexCountParameter) {
 
 
 TEST(GraphAdjListCtorTest, DegreeOneGraph) {
-	Graph two_vertex_graph{ AdjList{ {1}, {0} } };
+	Graph two_vertex_graph{ AdjList{{1}, {0}} };
+
+	//for (const auto& row : vec)
+ //   {
+ //       for (const auto& column : row)
+ //       {
+ //           cout << column << ' ';
+ //       }
+ //       cout << '\n';
+ //   }
+
 	const std::string expected_output =
 		"0:  1\n"
 		"1:  0\n";
@@ -291,6 +301,7 @@ TEST(GraphAdjListCtorTest, DegreeOneGraph) {
 
 	EXPECT_EQ(expected_output, real_output);
 	ASSERT_TRUE(two_vertex_graph.IsSimpleGraph()) << "testing two_vertex_graph for IsSimpleGraph()";
+
 }
 
 TEST(GraphAdjListCtorTest, DegreeThreeGraph) {
@@ -1336,60 +1347,107 @@ TEST(IsValidDirectionalCycleTest, CheckValidCycleExpectFalse)
 
 
 
+//DoAllLargestCycleshaveAChordV2Test() IS BROKEN!!!!!!!
+
+//TEST(DoAllLargestCyclesHaveAChordV2Test, K4DoAllLargestCyclesHaveAChordExpectsTrue) {
+//	Graph g = Graph::K_4;
+//	EXPECT_TRUE(g.IsSimpleGraph());
+//	EXPECT_TRUE(g.IsKVertexConnected(3));
+//	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChordV2());
+//}
+//
+//TEST(DoAllLargestCyclesHaveAChordV2Test, SquareGraphWithDiagonalDoAllLargestCyclesHaveAChordExpectsTrue) {
+//	Graph g{ AdjList{{1,2,3}, {0,3}, {0,3}, {0,1,2}} };
+//	EXPECT_TRUE(g.IsSimpleGraph());
+//	EXPECT_TRUE(g.IsKVertexConnected(2));
+//	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChordV2());
+//}
+//
+//TEST(DoAllLargestCyclesHaveAChordV2Test, SquareGraphWithNoDiagonalDoAllLargestCyclesHaveAChordExpectsFalse) {
+//	Graph g{ AdjList{{1,2}, {0,3}, {0,3}, {1,2}} };
+//	EXPECT_TRUE(g.IsSimpleGraph());
+//	EXPECT_TRUE(g.IsKVertexConnected(2));
+//	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChordV2());
+//}
+//
+//TEST(DoAllLargestCyclesHaveAChordV2Test, GraphWithNoCyclesDoAllLargestCyclesHaveAChordExpectsTrue) {
+//	Graph g{ AdjList{{1}, {0,3}, {3}, {1,2}} };
+//	EXPECT_TRUE(g.IsSimpleGraph());
+//	EXPECT_TRUE(g.IsKVertexConnected(1));
+//	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChordV2());
+//}
+//
+//TEST(DoAllLargestCyclesHaveAChordV2Test, GraphWithMultipleCyclesButLargestHaveNoChordsDoAllLargestCyclesHaveAChordExpectsFalse) {
+//	Graph g{ AdjList{{1,5}, {0,3}, {3,6,7}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
+//	EXPECT_TRUE(g.IsSimpleGraph());
+//	EXPECT_TRUE(g.IsKVertexConnected(1));
+//	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChordV2());
+//}
+//
+//TEST(DoAllLargestCyclesHaveAChordV2Test, GraphWithMultipleCyclesAndLargestHaveChordsDoAllLargestCyclesHaveAChordExpectsTrue) {
+//	Graph g{ AdjList{{1,5}, {0,3,2}, {3,6,7,1}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
+//	EXPECT_TRUE(g.IsSimpleGraph());
+//	EXPECT_TRUE(g.IsKVertexConnected(2));
+//	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChordV2());
+//}
+//
+//TEST(DoAllLargestCyclesHaveAChordV2Test, GraphWithOneBigCycleButNoChordDoAllLargestCyclesHaveAChordExpectsFalse) {
+//	Graph g{ AdjList{{1,7}, {0,2}, {1,3}, {2,8,4}, {3,5}, {6,4}, {7,5}, {0,6,8}, {7,3}} };
+//	EXPECT_TRUE(g.IsSimpleGraph());
+//	EXPECT_TRUE(g.IsKVertexConnected(2));
+//	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChordV2());
+//}
 
 
-TEST(DoAllLargestCyclesHaveAChordV2Test, K4DoAllLargestCyclesHaveAChordExpectsTrue) {
+
+TEST(CheckThomassenConjTest, K4DoAllLargestCyclesHaveAChordExpectsTrue) {
 	Graph g = Graph::K_4;
 	EXPECT_TRUE(g.IsSimpleGraph());
 	EXPECT_TRUE(g.IsKVertexConnected(3));
-	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChordV2());
+	EXPECT_TRUE(g.CheckThomassenConj());
 }
 
-TEST(DoAllLargestCyclesHaveAChordV2Test, SquareGraphWithDiagonalDoAllLargestCyclesHaveAChordExpectsTrue) {
+TEST(CheckThomassenConjTest, SquareGraphWithDiagonalDoAllLargestCyclesHaveAChordExpectsTrue) {
 	Graph g{ AdjList{{1,2,3}, {0,3}, {0,3}, {0,1,2}} };
 	EXPECT_TRUE(g.IsSimpleGraph());
 	EXPECT_TRUE(g.IsKVertexConnected(2));
-	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChordV2());
+	EXPECT_TRUE(g.CheckThomassenConj());
 }
 
-TEST(DoAllLargestCyclesHaveAChordV2Test, SquareGraphWithNoDiagonalDoAllLargestCyclesHaveAChordExpectsFalse) {
+TEST(CheckThomassenConjTest, SquareGraphWithNoDiagonalDoAllLargestCyclesHaveAChordExpectsFalse) {
 	Graph g{ AdjList{{1,2}, {0,3}, {0,3}, {1,2}} };
 	EXPECT_TRUE(g.IsSimpleGraph());
 	EXPECT_TRUE(g.IsKVertexConnected(2));
-	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChordV2());
+	EXPECT_FALSE(g.CheckThomassenConj());
 }
 
-TEST(DoAllLargestCyclesHaveAChordV2Test, GraphWithNoCyclesDoAllLargestCyclesHaveAChordExpectsTrue) {
+TEST(CheckThomassenConjTest, GraphWithNoCyclesDoAllLargestCyclesHaveAChordExpectsTrue) {
 	Graph g{ AdjList{{1}, {0,3}, {3}, {1,2}} };
 	EXPECT_TRUE(g.IsSimpleGraph());
 	EXPECT_TRUE(g.IsKVertexConnected(1));
-	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChordV2());
+	EXPECT_TRUE(g.CheckThomassenConj());
 }
 
-TEST(DoAllLargestCyclesHaveAChordV2Test, GraphWithMultipleCyclesButLargestHaveNoChordsDoAllLargestCyclesHaveAChordExpectsFalse) {
+TEST(CheckThomassenConjTest, GraphWithMultipleCyclesButLargestHaveNoChordsDoAllLargestCyclesHaveAChordExpectsFalse) {
 	Graph g{ AdjList{{1,5}, {0,3}, {3,6,7}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
 	EXPECT_TRUE(g.IsSimpleGraph());
 	EXPECT_TRUE(g.IsKVertexConnected(1));
-	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChordV2());
+	EXPECT_FALSE(g.CheckThomassenConj());
 }
 
-TEST(DoAllLargestCyclesHaveAChordV2Test, GraphWithMultipleCyclesAndLargestHaveChordsDoAllLargestCyclesHaveAChordExpectsTrue) {
+TEST(CheckThomassenConjTest, GraphWithMultipleCyclesAndLargestHaveChordsDoAllLargestCyclesHaveAChordExpectsTrue) {
 	Graph g{ AdjList{{1,5}, {0,3,2}, {3,6,7,1}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
 	EXPECT_TRUE(g.IsSimpleGraph());
 	EXPECT_TRUE(g.IsKVertexConnected(2));
-	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChordV2());
+	EXPECT_TRUE(g.CheckThomassenConj());
 }
 
-TEST(DoAllLargestCyclesHaveAChordV2Test, GraphWithOneBigCycleButNoChordDoAllLargestCyclesHaveAChordExpectsFalse) {
+TEST(CheckThomassenConjTest, GraphWithOneBigCycleButNoChordDoAllLargestCyclesHaveAChordExpectsFalse) {
 	Graph g{ AdjList{{1,7}, {0,2}, {1,3}, {2,8,4}, {3,5}, {6,4}, {7,5}, {0,6,8}, {7,3}} };
 	EXPECT_TRUE(g.IsSimpleGraph());
 	EXPECT_TRUE(g.IsKVertexConnected(2));
-	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChordV2());
+	EXPECT_FALSE(g.CheckThomassenConj());
 }
-
-
-
-
 
 
 

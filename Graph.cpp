@@ -1,8 +1,8 @@
 #include "Graph.h"
 #include <algorithm>
 #include <iomanip>
-#include <unordered_set>
 #include <queue>
+#include <unordered_set>
 
 ///conastructor using an Adjacency List
 Graph::Graph(AdjList other_adj_list) : adj_list_{ std::move(other_adj_list) }
@@ -199,44 +199,89 @@ bool Graph::IsConnected(const DynamicArray<Vertex>& vertex_exclustion_list) cons
     //The exclusion list should not be all vertices unless there are 0 vertices.
     assert(vertex_exclustion_list.Size() < VertexCount());
 
-    std::unordered_set<Vertex> traversed;
+
+    //filter excluded vertices
+    DynamicArray<bool> visited(VertexCount(), false);
+    for (const auto& c : vertex_exclustion_list)
+    {
+        visited[c] = true;
+    }
+
+    //calculate the number of vertices required to visit
+    int visited_vertex = vertex_exclustion_list.Size();
+
+    //choose non excluded vertex to start with
+    Vertex starting_vertex = 0;
+    while (visited[starting_vertex])
+    {
+        ++starting_vertex;
+    }
+    
+    //set up initial deque condition
+    std::queue<Vertex> bfs;
+    bfs.push(starting_vertex);
+    visited[starting_vertex] = true;
+    ++visited_vertex;
+
+    //bfs traversing
+    while (!bfs.empty())
+    {
+        const Vertex& v = bfs.front();
+        for (const Vertex& c : adj_list_[v])
+        {
+            //filter out visited vertices
+            if (visited[c]) continue;
+
+            //add new vertex to the deque
+            visited[c] = true;
+            ++visited_vertex;
+            bfs.push(c);
+        }
+
+        bfs.pop();
+    }
+
+    return visited_vertex == VertexCount();
+
+
+    //std::unordered_set<Vertex> traversed;
 
     //place all excluded vertices in the set
-    for (const Vertex& v : vertex_exclustion_list) {
-        assert(!traversed.contains(v)); //to make sure they are all unique
-        traversed.insert(v);
-    }
+    //for (const Vertex& v : vertex_exclustion_list) {
+    //    assert(!traversed.contains(v)); to make sure they are all unique
+    //    traversed.insert(v);
+    //}
 
     //find which vertex to begin with
-    Vertex starting_vertex;
-    for (Vertex v = 0; v < VertexCount(); ++v) {
-        if (!traversed.contains(v)) {
-            starting_vertex = v;
-            break;
-        }
-    }
+    //Vertex starting_vertex;
+    //for (Vertex v = 0; v < VertexCount(); ++v) {
+    //    if (!traversed.contains(v)) {
+    //        starting_vertex = v;
+    //        break;
+    //    }
+    //}
 
     //begin with the first vertex and try traversing through the graph until we reach all vertices or can't reach all.
-    traversed.insert(starting_vertex);
-    std::queue<Vertex> queue;
-    queue.push(starting_vertex);
+    //traversed.insert(starting_vertex);
+    //std::queue<Vertex> queue;
+    //queue.push(starting_vertex);
 
     //keep traversing through
-    while (traversed.size() < VertexCount() && !queue.empty()) { 
+    //while (traversed.size() < VertexCount() && !queue.empty()) { 
         
-        int target_vertex = queue.front();
-        queue.pop();
+    //    int target_vertex = queue.front();
+    //    queue.pop();
 
-        for (const auto& v : adj_list_[target_vertex]) {
-            if (!traversed.contains(v)) {
-                queue.push(v);
-            }
-            traversed.insert(v);
-        }
-    }
+    //    for (const auto& v : adj_list_[target_vertex]) {
+    //        if (!traversed.contains(v)) {
+    //            queue.push(v);
+    //        }
+    //        traversed.insert(v);
+    //    }
+    //}
 
-    if (traversed.size() == VertexCount()) return true;
-    return false;
+    //if (traversed.size() == VertexCount()) return true;
+    //return false;
 }
 
 ///checks if the graph is K-vertex connected
@@ -292,7 +337,7 @@ bool Graph::IsSimpleGraph() const //representation invariant
 
     for (Vertex p = 0; p < adj_list_.Size(); ++p)
     {
-        std::unordered_set<Vertex> edge;
+        DynamicArray<bool> visited(VertexCount(), false);
 
         for (const auto& c : adj_list_[p])
         {
@@ -303,8 +348,8 @@ bool Graph::IsSimpleGraph() const //representation invariant
             assert(HasEdge(c, p));
 
             //check duplicated edge
-            assert(!edge.contains(c));
-            edge.insert(c);
+            assert(!visited[c]);
+            visited[c] = true;
         }
     }
 
@@ -315,38 +360,36 @@ bool Graph::IsSimpleGraph() const //representation invariant
 bool Graph::HasChord(const DynamicArray<Vertex>& cycle) const
 {
     /*if (cycle.Size() <= 3) return false;*/ //I turned this off just to test the algorithm
-    
+
+    assert(IsSimpleGraph());
+
     //this cycle must be a valid cycle to check if it has a chord...
-    if (!IsValidDirectionalCycle(cycle)) return false;
+    if (!IsValidDirectionalCycle(cycle)) return false; //in _DEBUG, this makes sure that all vertices are unique
 
 
 
-    //make sure cycle is unique
-    std::unordered_set<Vertex> vertices;
-    for (const Vertex& v : cycle) {
-        assert(!vertices.contains(v));
-        vertices.insert(v);
+    DynamicArray<bool> cycle_has_vertex(VertexCount(), false);
+    for (const auto& v : cycle) {
+        cycle_has_vertex[v] = true;
     }
 
     //loop through all Vertices in the cycle until we find one with a chord
-    for (int i = 0; i < cycle.Size() - 1; ++i) { //these are the indicies for the Vertices within cycle. //it is not necessary to check the final Vertex?
+    //these are the indicies for the Vertices within cycle.
+    //it is not necessary to check the final Vertex?
+    for (int i = 0; i < cycle.Size() - 1; ++i) { 
 
-        //get adjacent and current vertices
+        //get current and adjacent vertices
+        const Vertex current_vertex = cycle[i];
         const Vertex adj1 = cycle[(i + 1) % cycle.Size()];
         const Vertex adj2 = cycle[(i - 1 + cycle.Size()) % cycle.Size()];
-        const Vertex current_vertex = cycle[i];
 
         //check if it has an edge with a vertex in the cycle other than with the neighbours
         for (const Vertex& c : adj_list_[current_vertex]) {
-            if (c != adj1 && c != adj2 && vertices.contains(c)) {
+            if (c != adj1 && c != adj2 && cycle_has_vertex[c]) {
                 return true;
             }
         }
     }
-
-
-
-    //try to replace above with HasEdge() 
 
     return false;
 }
@@ -543,14 +586,108 @@ bool Graph::DoAllLargestCyclesHaveAChordV2()
 
     }
 
+    this->adj_list_ = graph_copy.adj_list_;
+
     //now that we have found all largest cycles, we must check if they all have chords.
     for (const auto& cycle : cycles_of_largest_length) {
         VertexListToString(cycle);
-        if (!graph_copy.HasChord(cycle)) return false; //a longest cycle does not have a chord!
+        if (!HasChord(cycle)) return false; //a longest cycle does not have a chord!
     }
     return true;
 
 }
+
+
+
+
+
+
+
+
+
+
+
+bool Graph::CheckThomassenConj() const
+{
+    DynamicArray<DynamicArray<Vertex>> largest_cycles;
+    DynamicArray<bool> visited(VertexCount(), false);
+    DynamicArray<Vertex> current_cycle;
+
+    
+    //starting from different cycle
+    for(Vertex v = 0; v < VertexCount(); ++v)
+    {
+        //obtain all the largest cycles
+        DFS(*this, largest_cycles, visited, current_cycle, v);
+    }
+
+    
+    //check chord for all the cycles
+    for (const auto& cycle : largest_cycles) {
+        std::cout << VertexListToString(cycle) << std::endl;
+        if (!HasChord(cycle)) return false;
+    }
+    return true;
+}
+
+void Graph::DFS(const Graph& graph, DynamicArray<DynamicArray<Vertex>> &largest_cycles, DynamicArray<bool> &visited, DynamicArray<Vertex> &current_cycle, Vertex curr)
+{
+    //add to the cycle
+    current_cycle.PushBack(curr);
+    visited[curr] = true;
+
+    for(auto child : graph.adj_list_[curr])
+    {
+        //found a cycle
+        if(child == current_cycle.Front())
+        {
+            //cycle must have at least 3 vertices
+            if (current_cycle.Size() < 3) continue;
+
+            //very first cycle found or found same size cycle 
+            if (largest_cycles.IsEmpty() || current_cycle.Size() == largest_cycles.Front().Size())
+            {
+                largest_cycles.PushBack(current_cycle);
+            }
+
+            //check if found a larger cycle
+            else if(current_cycle.Size() > largest_cycles.Front().Size())
+            {
+                //update the largest cycles list
+                largest_cycles.Clear();
+                largest_cycles.PushBack(current_cycle);
+            }
+        }
+
+        //new child vertex not in the current cycle
+        else if (!visited[child])
+        {
+            DFS(graph, largest_cycles, visited, current_cycle, child);
+        }
+    }
+
+    current_cycle.PopBack();
+    visited[curr] = false;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ///return string representation of the adjacent list
 Graph::operator std::string() const

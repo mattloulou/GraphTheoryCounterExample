@@ -42,6 +42,14 @@ public:
 	bool IsValidDirectionalCycle(const DynamicArray<Vertex>& cycle) const;
 	bool DoAllLargestCyclesHaveAChord() const;
 	bool DoAllLargestCyclesHaveAChordV2(); //WARNING: this method destroys a given graph. Use it on copies only to be safe
+	
+	bool CheckThomassenConj() const;
+	private:
+	static void DFS(const Graph& graph, DynamicArray<DynamicArray<Vertex>>& largest_cycles, DynamicArray<bool>& visited, DynamicArray<Vertex>& current_cycle, Vertex v);
+	
+
+public:
+
 
 	explicit operator std::string() const;
 

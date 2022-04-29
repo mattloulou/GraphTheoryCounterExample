@@ -1,5 +1,3 @@
-//written by Evan He
-
 #pragma once
 #include <iostream>
 #include <algorithm>
