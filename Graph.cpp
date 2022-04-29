@@ -1,3 +1,5 @@
+//Authors: Matthew Pechen-Berg & Evan He 
+//Initial Creation Date: April 2022
 #include "Graph.h"
 #include <algorithm>
 #include <iomanip>
@@ -624,7 +626,7 @@ bool Graph::CheckThomassenConj() const
     
     //check chord for all the cycles
     for (const auto& cycle : largest_cycles) {
-        std::cout << VertexListToString(cycle) << std::endl;
+        //std::cout << VertexListToString(cycle) << std::endl;
         if (!HasChord(cycle)) return false;
     }
     return true;
