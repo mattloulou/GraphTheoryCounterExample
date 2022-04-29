@@ -1,3 +1,5 @@
+//Authors: Matthew Pechen-Berg & Evan He 
+//Initial Creation Date: April 2022
 #include <iostream>
 #include <random>
 #include <iomanip>
@@ -41,7 +43,7 @@ int main()
 
         if (g.IsKVertexConnected(3)) {
             std::cout << std::setw(6) << "Graph #" << graphs_checked << " . Graph checked, 3 connected!\n";
-            if (!g.CheckThomassenConj()) {
+            if (!g.CheckThomassenConjV2()) {
                 g.PrintGraph();
                 counter_example_found = true;
             }

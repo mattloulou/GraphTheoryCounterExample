@@ -609,6 +609,47 @@ bool Graph::DoAllLargestCyclesHaveAChordV2()
 
 
 
+
+
+
+
+bool Graph::CheckThomassenConjV2() const
+{
+    DynamicArray<DynamicArray<Vertex>> largest_cycles;
+    DynamicArray<bool> visited(VertexCount(), false);
+    DynamicArray<Vertex> current_cycle;
+    Graph copy{ *this };
+
+
+    //starting DFS from different each different vertex, obtain all the largest cycles in the graph
+    for (Vertex v = 0; v < VertexCount(); ++v)
+    {
+
+        //there are two conditions where we can stop using DFS early:
+        const int vertices_remaining = VertexCount() - v;
+        if (vertices_remaining < 3 || (!largest_cycles.IsEmpty() && vertices_remaining < largest_cycles.Front().Size())) {
+            break;
+        }
+
+        //perform DFS on the copy of this graph, and then delete the edges used by that vertex after. (This is because DFS will get all cycles that vertex is a part of, so we can just delete it after)
+        DFS(copy, largest_cycles, visited, current_cycle, v);
+        copy.ClearEdges(v); //this is a quick way to pseudo-delete vertex v, without messing up the adj_list_. 
+                                //The vertex still exists, but won't show up in the adj_list_ for any vertices in future iterations in this for-loop.
+    }
+
+
+    //check chord for all the cycles
+    for (const auto& cycle : largest_cycles) {
+        //std::cout << VertexListToString(cycle) << std::endl;
+        if (!HasChord(cycle)) return false;
+    }
+    return true;
+}
+
+
+
+
+
 bool Graph::CheckThomassenConj() const
 {
     DynamicArray<DynamicArray<Vertex>> largest_cycles;
@@ -616,7 +657,7 @@ bool Graph::CheckThomassenConj() const
     DynamicArray<Vertex> current_cycle;
 
     
-    //starting from different cycle
+    //starting DFS from different each different vertex
     for(Vertex v = 0; v < VertexCount(); ++v)
     {
         //obtain all the largest cycles
@@ -632,6 +673,14 @@ bool Graph::CheckThomassenConj() const
     return true;
 }
 
+/// <summary>
+/// recursively performs DFS to find all cycles of the largest size.
+/// </summary>
+/// <param name="graph">this is a reference to a graph you want to perform DFS on</param>
+/// <param name="largest_cycles">this is a reference to an array of arrays of vertices which stores all cycles found of the largest size</param>
+/// <param name="visited">this is a reference to an array containing the visited array for the vertices in the graph</param>
+/// <param name="current_cycle">this is a reference to a DynamicArray that stores the current cycle this recursive iteration is a part of</param>
+/// <param name="curr">this is the vertex from which DFS is being performed recursively on</param>
 void Graph::DFS(const Graph& graph, DynamicArray<DynamicArray<Vertex>> &largest_cycles, DynamicArray<bool> &visited, DynamicArray<Vertex> &current_cycle, Vertex curr)
 {
     //add to the cycle
