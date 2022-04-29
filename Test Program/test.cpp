@@ -1320,8 +1320,19 @@ TEST(DoAllLargestCyclesHaveAChordTest, GraphWithMultipleCyclesButLargestHaveNoCh
 	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChord());
 }
 
+TEST(DoAllLargestCyclesHaveAChordTest, GraphWithMultipleCyclesAndLargestHaveChordsDoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g{ AdjList{{1,5}, {0,3,2}, {3,6,7,1}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_TRUE(g.DoAllLargestCyclesHaveAChord());
+}
 
-
+TEST(DoAllLargestCyclesHaveAChordTest, GraphWithOneBigCycleButNoChordDoAllLargestCyclesHaveAChordExpectsFalse) {
+	Graph g{ AdjList{{1,7}, {0,2}, {1,3}, {2,8,4}, {3,5}, {6,4}, {7,5}, {0,6,8}, {7,3}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_FALSE(g.DoAllLargestCyclesHaveAChord());
+}
 
 
 

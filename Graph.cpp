@@ -412,6 +412,104 @@ bool Graph::DoAllLargestCyclesHaveAChord() const
     return true;
 }
 
+///Checks if every cycle of the largest length in this graph has a chord.
+bool Graph::DoAllLargestCyclesHaveAChord() const
+{
+    //this is required for this algorithm (I think)
+    assert(IsKVertexConnected(2)); 
+    
+    //the gist of this method is that we will begin with vertex 0, and try to find the largest cycles it is a part of.
+    //Once we have done that, if there can theoretically be cycles remaining that don't involve vertex 0, we will remove that vertex and recursively follow this procedure on the resulting graph.
+    //This will keep happening until we removed all vertices, and/or there can not be any theoretically longer cycles left.
+
+    int largest_cycle = 2; //default value. Can also be set to 0
+    int vertices_left = VertexCount(); //the number of vertices that have not yet been excluded from search. This is also the theoretical maximum sized cycle that we can find left (after removing vertices)
+    DynamicArray<DynamicArray<Vertex>> cycles_of_largest_length;
+
+
+    //keep searching while there can theoretically be a larger cycle
+    while (largest_cycle <= vertices_left) { //since largest_cycle is set to 2 by default, and that is the lower bound, it guarantees that we will never have fewer than 2 vertices left.
+
+        DynamicArray<int> index_path_taken; //this stores the indices of the current path taken
+        DynamicArray<Vertex> vertex_path_taken; //this stores the vertices of the path taken
+        std::unordered_set<Vertex> vertices_travelled; //the same as above, but in a map.
+
+        bool done_with_current_vertex = false;
+        bool backtracking = false;
+        int current_vertex = VertexCount() - vertices_left;
+
+        vertex_path_taken.PushBack(current_vertex); //start the DynamicArray off with the virst vertex we are using.
+
+        while (!done_with_current_vertex) {
+
+            if (!backtracking) {
+
+                //go to the next vertex; It will always have elements in the adj_list
+                Vertex next_vertex = adj_list_[vertex_path_taken.Back()][0];
+                
+                index_path_taken.PushBack(0);
+                vertex_path_taken.PushBack(next_vertex);
+
+                //if we have found a new cycle
+                if (next_vertex == current_vertex) {
+
+                    const int cycle_size = vertex_path_taken.Size() - 1;
+
+                    //if we found a new largest-size cycle
+                    if (cycle_size > largest_cycle) {
+
+                        //update longest-cycle information
+                        largest_cycle = cycle_size;
+                        cycles_of_largest_length.Clear();
+
+                        DynamicArray<Vertex> cycle_to_add{ vertex_path_taken };
+                        cycle_to_add.PopBack();
+                        cycles_of_largest_length.PushBack(cycle_to_add);
+
+                        //gotta back up now and take a different path
+                        backtracking = true;
+                    }
+
+                    //if we found a cycle of the same size as the current largest:
+                    if (cycle_size == largest_cycle) {
+                           
+                        //add the new cycle found
+                        DynamicArray<Vertex> cycle_to_add{ vertex_path_taken };
+                        cycle_to_add.PopBack();
+                        cycles_of_largest_length.PushBack(cycle_to_add);
+
+                        //gotta back up now and take a different path
+                        backtracking = true;
+                    }
+
+
+                }
+
+                //if we return to a previous vertex already visited in this path
+                else if (vertices_travelled.contains(next_vertex)) {
+                    backtracking = true;
+                }
+
+
+
+                else {
+                    vertices_travelled.insert(next_vertex);
+                }
+
+
+
+
+            //backtracking:
+            } else {
+
+            }
+            
+
+        }
+    }
+
+}
+
 ///return string representation of the adjacent list
 Graph::operator std::string() const
 {
