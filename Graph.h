@@ -45,6 +45,7 @@ public:
 	
 	bool CheckThomassenConj() const;
 	bool CheckThomassenConjV2() const;
+	bool CheckThomassenConjV3() const;
 
 	private:
 	static void DFS(const Graph& graph, DynamicArray<DynamicArray<Vertex>>& largest_cycles, DynamicArray<bool>& visited, DynamicArray<Vertex>& current_cycle, Vertex v);

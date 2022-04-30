@@ -43,7 +43,7 @@ int main()
 
         if (g.IsKVertexConnected(3)) {
             std::cout << std::setw(6) << "Graph #" << graphs_checked << " . Graph checked, 3 connected!\n";
-            if (!g.CheckThomassenConjV2()) {
+            if (!g.CheckThomassenConjV3()) {
                 g.PrintGraph();
                 counter_example_found = true;
             }

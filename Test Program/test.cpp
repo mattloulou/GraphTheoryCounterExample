@@ -1506,6 +1506,57 @@ TEST(CheckThomassenConjV2Test, GraphWithOneBigCycleButNoChordDoAllLargestCyclesH
 
 
 
+TEST(CheckThomassenConjV3Test, K4DoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g = Graph::K_4;
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(3));
+	EXPECT_TRUE(g.CheckThomassenConjV3());
+}
+
+TEST(CheckThomassenConjV3Test, SquareGraphWithDiagonalDoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g{ AdjList{{1,2,3}, {0,3}, {0,3}, {0,1,2}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_TRUE(g.CheckThomassenConjV3());
+}
+
+TEST(CheckThomassenConjV3Test, SquareGraphWithNoDiagonalDoAllLargestCyclesHaveAChordExpectsFalse) {
+	Graph g{ AdjList{{1,2}, {0,3}, {0,3}, {1,2}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_FALSE(g.CheckThomassenConjV3());
+}
+
+TEST(CheckThomassenConjV3Test, GraphWithNoCyclesDoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g{ AdjList{{1}, {0,3}, {3}, {1,2}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(1));
+	EXPECT_TRUE(g.CheckThomassenConjV3());
+}
+
+TEST(CheckThomassenConjV3Test, GraphWithMultipleCyclesButLargestHaveNoChordsDoAllLargestCyclesHaveAChordExpectsFalse) {
+	Graph g{ AdjList{{1,5}, {0,3}, {3,6,7}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(1));
+	EXPECT_FALSE(g.CheckThomassenConjV3());
+}
+
+TEST(CheckThomassenConjV3Test, GraphWithMultipleCyclesAndLargestHaveChordsDoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g{ AdjList{{1,5}, {0,3,2}, {3,6,7,1}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_TRUE(g.CheckThomassenConjV3());
+}
+
+TEST(CheckThomassenConjV3Test, GraphWithOneBigCycleButNoChordDoAllLargestCyclesHaveAChordExpectsFalse) {
+	Graph g{ AdjList{{1,7}, {0,2}, {1,3}, {2,8,4}, {3,5}, {6,4}, {7,5}, {0,6,8}, {7,3}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_FALSE(g.CheckThomassenConjV3());
+}
+
+
+
 
 
 TEST(AllPermutationsTest, PermutationsWith0Choices) {
