@@ -628,7 +628,7 @@ bool Graph::CheckThomassenConjV3() const
         //we can sneak in extra perfomance by actually not performing DFS on the first vertex that the initial vertex "v" has an edge with (we can do any vertex, but I think first will be best on average)
         current_cycle.PushBack(v);
         visited[v] = true;
-        for (int i = 1; i < copy.adj_list_[v].Size(); ++i) {
+        for (int i = 1; i < copy.adj_list_[v].Size(); ++i) { //start at i = 1 !!!
             DFS(copy, largest_cycles, visited, current_cycle, copy.adj_list_[v][i]);
         }
 
@@ -685,6 +685,93 @@ bool Graph::CheckThomassenConjV2() const
     return true;
 }
 
+
+bool Graph::CheckThomassenConjV5() const
+{
+    DynamicArray<DynamicArray<Vertex>> largest_cycles;
+    DynamicArray<bool> visited(VertexCount(), false);
+    DynamicArray<Vertex> current_cycle;
+
+
+    //starting DFS from different each different vertex, obtain all the largest cycles in the graph
+    for (Vertex v = 0; v < VertexCount(); ++v)
+    {
+
+        //there are two conditions where we can stop using DFS early:
+        const int vertices_remaining = VertexCount() - v;
+        if (vertices_remaining < 3 || (!largest_cycles.IsEmpty() && vertices_remaining < largest_cycles.Front().Size())) {
+            break;
+        }
+
+        //perform DFS on the copy of this graph, and then delete the edges used by that vertex after. (This is because DFS will get all cycles that vertex is a part of, so we can just delete it after)
+        //we can sneak in extra perfomance by actually not performing DFS on the first vertex that the initial vertex "v" has an edge with (we can do any vertex, but I think first will be best on average)
+        visited[v] = true;
+        current_cycle.PushBack(v);
+        for (int i = 1; i < adj_list_[v].Size(); ++i) { //start at i = 1 !!!
+            DFS(*this, largest_cycles, visited, current_cycle, adj_list_[v][i]);
+            visited[adj_list_[v][i]] = true;
+        }
+
+        //undo the visited exploitation from above
+        for (int i = 1; i < adj_list_[v].Size(); ++i) { //start at i = 1 !!!
+            visited[adj_list_[v][i]] = false;
+        }
+
+        //ClearEdges()is a quick way to pseudo-delete vertex v, without messing up the adj_list_. 
+        //The vertex still exists, but won't show up in the adj_list_ for any vertices in future iterations in this for-loop.
+        //visited[v] remains true afterwards
+        current_cycle.PopBack();
+    }
+
+
+    //check chord for all the cycles
+    for (const auto& cycle : largest_cycles) {
+        //std::cout << VertexListToString(cycle) << std::endl;
+        if (!HasChord(cycle)) return false;
+    }
+    return true;
+}
+
+
+bool Graph::CheckThomassenConjV4() const
+{
+    DynamicArray<DynamicArray<Vertex>> largest_cycles;
+    DynamicArray<bool> visited(VertexCount(), false);
+    DynamicArray<Vertex> current_cycle;
+
+
+    //starting DFS from different each different vertex, obtain all the largest cycles in the graph
+    for (Vertex v = 0; v < VertexCount(); ++v)
+    {
+
+        //there are two conditions where we can stop using DFS early:
+        const int vertices_remaining = VertexCount() - v;
+        if (vertices_remaining < 3 || (!largest_cycles.IsEmpty() && vertices_remaining < largest_cycles.Front().Size())) {
+            break;
+        }
+
+        //perform DFS on the copy of this graph, and then delete the edges used by that vertex after. (This is because DFS will get all cycles that vertex is a part of, so we can just delete it after)
+        //we can sneak in extra perfomance by actually not performing DFS on the first vertex that the initial vertex "v" has an edge with (we can do any vertex, but I think first will be best on average)
+        visited[v] = true;
+        current_cycle.PushBack(v);
+        for (int i = 1; i < adj_list_[v].Size(); ++i) { //start at i = 1 !!!
+            DFS(*this, largest_cycles, visited, current_cycle, adj_list_[v][i]);
+        }
+
+        //ClearEdges()is a quick way to pseudo-delete vertex v, without messing up the adj_list_. 
+        //The vertex still exists, but won't show up in the adj_list_ for any vertices in future iterations in this for-loop.
+        //visited[v] remains true afterwards
+        current_cycle.PopBack();
+    }
+
+
+    //check chord for all the cycles
+    for (const auto& cycle : largest_cycles) {
+        //std::cout << VertexListToString(cycle) << std::endl;
+        if (!HasChord(cycle)) return false;
+    }
+    return true;
+}
 
 bool Graph::CheckThomassenConj() const
 {

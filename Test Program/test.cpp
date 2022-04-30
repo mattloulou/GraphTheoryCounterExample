@@ -1558,6 +1558,107 @@ TEST(CheckThomassenConjV3Test, GraphWithOneBigCycleButNoChordDoAllLargestCyclesH
 
 
 
+TEST(CheckThomassenConjV4Test, K4DoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g = Graph::K_4;
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(3));
+	EXPECT_TRUE(g.CheckThomassenConjV4());
+}
+
+TEST(CheckThomassenConjV4Test, SquareGraphWithDiagonalDoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g{ AdjList{{1,2,3}, {0,3}, {0,3}, {0,1,2}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_TRUE(g.CheckThomassenConjV4());
+}
+
+TEST(CheckThomassenConjV4Test, SquareGraphWithNoDiagonalDoAllLargestCyclesHaveAChordExpectsFalse) {
+	Graph g{ AdjList{{1,2}, {0,3}, {0,3}, {1,2}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_FALSE(g.CheckThomassenConjV4());
+}
+
+TEST(CheckThomassenConjV4Test, GraphWithNoCyclesDoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g{ AdjList{{1}, {0,3}, {3}, {1,2}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(1));
+	EXPECT_TRUE(g.CheckThomassenConjV4());
+}
+
+TEST(CheckThomassenConjV4Test, GraphWithMultipleCyclesButLargestHaveNoChordsDoAllLargestCyclesHaveAChordExpectsFalse) {
+	Graph g{ AdjList{{1,5}, {0,3}, {3,6,7}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(1));
+	EXPECT_FALSE(g.CheckThomassenConjV4());
+}
+
+TEST(CheckThomassenConjV4Test, GraphWithMultipleCyclesAndLargestHaveChordsDoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g{ AdjList{{1,5}, {0,3,2}, {3,6,7,1}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_TRUE(g.CheckThomassenConjV4());
+}
+
+TEST(CheckThomassenConjV4Test, GraphWithOneBigCycleButNoChordDoAllLargestCyclesHaveAChordExpectsFalse) {
+	Graph g{ AdjList{{1,7}, {0,2}, {1,3}, {2,8,4}, {3,5}, {6,4}, {7,5}, {0,6,8}, {7,3}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_FALSE(g.CheckThomassenConjV4());
+}
+
+
+
+TEST(CheckThomassenConjV5Test, K4DoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g = Graph::K_4;
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(3));
+	EXPECT_TRUE(g.CheckThomassenConjV5());
+}
+
+TEST(CheckThomassenConjV5Test, SquareGraphWithDiagonalDoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g{ AdjList{{1,2,3}, {0,3}, {0,3}, {0,1,2}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_TRUE(g.CheckThomassenConjV5());
+}
+
+TEST(CheckThomassenConjV5Test, SquareGraphWithNoDiagonalDoAllLargestCyclesHaveAChordExpectsFalse) {
+	Graph g{ AdjList{{1,2}, {0,3}, {0,3}, {1,2}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_FALSE(g.CheckThomassenConjV5());
+}
+
+TEST(CheckThomassenConjV5Test, GraphWithNoCyclesDoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g{ AdjList{{1}, {0,3}, {3}, {1,2}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(1));
+	EXPECT_TRUE(g.CheckThomassenConjV5());
+}
+
+TEST(CheckThomassenConjV5Test, GraphWithMultipleCyclesButLargestHaveNoChordsDoAllLargestCyclesHaveAChordExpectsFalse) {
+	Graph g{ AdjList{{1,5}, {0,3}, {3,6,7}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(1));
+	EXPECT_FALSE(g.CheckThomassenConjV5());
+}
+
+TEST(CheckThomassenConjV5Test, GraphWithMultipleCyclesAndLargestHaveChordsDoAllLargestCyclesHaveAChordExpectsTrue) {
+	Graph g{ AdjList{{1,5}, {0,3,2}, {3,6,7,1}, {1,2,6,4}, {5,3}, {0,4}, {2,3,7}, {2,6}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_TRUE(g.CheckThomassenConjV5());
+}
+
+TEST(CheckThomassenConjV5Test, GraphWithOneBigCycleButNoChordDoAllLargestCyclesHaveAChordExpectsFalse) {
+	Graph g{ AdjList{{1,7}, {0,2}, {1,3}, {2,8,4}, {3,5}, {6,4}, {7,5}, {0,6,8}, {7,3}} };
+	EXPECT_TRUE(g.IsSimpleGraph());
+	EXPECT_TRUE(g.IsKVertexConnected(2));
+	EXPECT_FALSE(g.CheckThomassenConjV5());
+}
+
+
 
 TEST(AllPermutationsTest, PermutationsWith0Choices) {
 
