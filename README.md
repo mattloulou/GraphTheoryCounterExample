@@ -20,7 +20,7 @@ We ultimately did not find a conjecture, but we are happy with our try nonethele
 
 The program begins with you inputting the size of the graph you want. As this is still a prototype, instead of using the combinatorial method to generate 3-vertex-connected graphs, we simply made random ones with a specific number of vertices, and then checked if it was 3-connected. If it was, then we tested it for the conjecture. In the output, if it says "Graphed checked", then it means that the conjecture was true for it. The program would print out the graph if it found a counter-example.
 
-For a graph with 13 vertices, it can do about 1000/second.
+For a graph with 13 vertices, it can check about 1000/second.
 
 ## Testing
 We wrote extensive unit tests to verify the correctness of our program as we developed it. These can be found in "Test Program/test.cpp". It uses **GoogleTest**. We have over 100 total.
