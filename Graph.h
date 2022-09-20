@@ -48,10 +48,12 @@ public:
 	bool CheckThomassenConjV3() const;
 	bool CheckThomassenConjV4() const; 
 	bool CheckThomassenConjV5() const;
+	bool CheckThomassenConjV6() const;
 
 	private:
 	static void DFS(const Graph& graph, DynamicArray<DynamicArray<Vertex>>& largest_cycles, DynamicArray<bool>& visited, DynamicArray<Vertex>& current_cycle, Vertex v);
-	
+	static void DFSV2(Vertex par, Vertex curr, DynamicArray<int>& colors, DynamicArray<Vertex>& parents, int& cycle_num, const Graph& graph, DynamicArray<DynamicArray<Vertex>>& cycles);
+
 
 public:
 

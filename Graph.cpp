@@ -844,24 +844,84 @@ void Graph::DFS(const Graph& graph, DynamicArray<DynamicArray<Vertex>> &largest_
     visited[curr] = false;
 }
 
+bool Graph::CheckThomassenConjV6() const
+{
+    DynamicArray<int> colors(VertexCount(), 0);
+    DynamicArray<int> parents(VertexCount(), -1);
+    DynamicArray<DynamicArray<Vertex>> cycles;
+
+    //DFS classify the cycles with different numbers
+    int cycle_num = 0;
+
+    for (Vertex v = 0; v < VertexCount(); ++v)
+    {
+        if (colors[v] == 2) continue;
+        DFSV2(-1, v, colors, parents, cycle_num, *this, cycles);
+    }
 
 
 
+    //check chord for all the cycles
+    for (const auto& cycle : cycles)
+    {
+        if (!HasChord(cycle)) return false;
+    }
+    return true;
+}
+
+void Graph::DFSV2(Vertex par, Vertex curr, DynamicArray<int>& colors, DynamicArray<Vertex>& parents, int& cycle_num, const Graph& graph, DynamicArray<DynamicArray<Vertex>>& cycles)
+{
+    //completely visited
+    if (colors[curr] == 2) return;
+
+    //partially visited => found a cycle
+    if (colors[curr] == 1)
+    {
+        DynamicArray<Vertex> cycle;
+
+        ++cycle_num;
+        Vertex to_mark = par;
+        cycle.PushBack(to_mark);
+
+        while (to_mark != curr)
+        {
+            //backtrack to the parent
+            to_mark = parents[to_mark];
+
+            //add to the cyclist
+            cycle.PushBack(to_mark);
+        }
 
 
+        //add to the cycles list if appropriate
+        if (cycles.IsEmpty() || cycle.Size() > cycles.Front().Size())
+        {
+            cycles.Clear();
+            cycles.PushBack(std::move(cycle));
+        }
+        else if (cycle.Size() == cycles.Front().Size())
+        {
+            cycles.PushBack(std::move(cycle));
+        }
 
+        return;
+    }
 
+    //set up the parent and color the vertex
+    parents[curr] = par;
+    colors[curr] = 1;
 
+    for (auto child : graph.adj_list_[curr])
+    {
+        //ignore parent
+        if (child == par) continue;
 
+        DFSV2(curr, child, colors, parents, cycle_num, graph, cycles);
+    }
 
-
-
-
-
-
-
-
-
+    //finishing iterating
+    colors[curr] = 2;
+}
 
 ///return string representation of the adjacent list
 Graph::operator std::string() const
